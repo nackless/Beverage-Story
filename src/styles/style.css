@@ -115,8 +115,9 @@ main {
 
 .blog-title {
     font-family: var(--ff-header);
-    font-weight: var(--fw-semi-bold);
-    font-size: 2rem;
+    font-weight: var(--fw-bold);
+    font-size: 2.5rem;
+    letter-spacing: 0.15rem;
     text-align: center;
     padding-bottom: 20px;
     color: #042940;
