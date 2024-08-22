@@ -5,12 +5,31 @@ import bsLogo from "../images/bsLogo.png";
 
 <a href="../">
   <div class="logo">
-    <Image src={bsLogo} alt="BevStoryLogo" height="30" />
+    <Image class=".image" src={bsLogo} alt="BevStoryLogo" />
   </div>
 </a>
 
 <style>
   .logo {
+    display: flex;
+    justify-content: center;
     padding: 10px;
+  }
+
+  img {
+    height: 70px;
+    width: 70px;
+  }
+
+  @media screen and (min-width: 600px) {
+    .logo {
+      padding: 10px;
+      justify-content: left;
+    }
+
+    img {
+      width: 40px;
+      height: 40px;
+    }
   }
 </style>

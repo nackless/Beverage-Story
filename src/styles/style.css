@@ -101,9 +101,17 @@ body {
 }
 
 main {
-  width:42%;
-    margin: auto;
+  padding: 2rem;
+  margin: auto;
 }
+  
+@media (min-width: 1100px)  {
+  main {
+    width:42%;
+      margin: auto;
+  }
+}
+
 
 .blog-title {
     font-family: var(--ff-header);
