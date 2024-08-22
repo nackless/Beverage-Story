@@ -1,0 +1,1 @@
+This is a template for my Beverage story blog. Plan to build a  basice template and then try and seee if I can convert it into astro component based site.

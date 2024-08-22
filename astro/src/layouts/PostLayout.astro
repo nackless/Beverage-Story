@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+const { frontmatter } = Astro.props;
+---
+
+<BaseLayout>
+  <h2 class="blog-title">{frontmatter.title}</h2>
+  <section class="main-content">
+    <slot />
+    <div class="all-posts">
+      <a href="../all-posts">All Posts>>></a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  a {
+    color: black;
+    text-decoration: none;
+  }
+
+  .all-posts {
+    text-align: center;
+    padding-bottom: 50px;
+  }
+</style>

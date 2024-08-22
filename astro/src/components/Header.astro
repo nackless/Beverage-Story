@@ -1,0 +1,16 @@
+---
+import { Image } from "astro:assets";
+import bsLogo from "../images/bsLogo.png";
+---
+
+<a href="../">
+  <div class="logo">
+    <Image src={bsLogo} alt="BevStoryLogo" height="30" />
+  </div>
+</a>
+
+<style>
+  .logo {
+    padding: 10px;
+  }
+</style>
