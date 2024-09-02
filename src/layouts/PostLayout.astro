@@ -3,13 +3,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 const { frontmatter } = Astro.props;
 ---
 
-<BaseLayout>
+<BaseLayout pageTitle={frontmatter.title}>
   <h1 class="blog-title">{frontmatter.title}</h1>
   <h3 class="date">{frontmatter.pubDate.toString().slice(0, 10)}</h3>
   <section class="main-content">
     <slot />
     <div class="all-posts">
-      <a href="../all-posts">All Posts>>></a>
+      <a href="../all-posts">All Posts >>></a>
     </div>
   </section>
 </BaseLayout>

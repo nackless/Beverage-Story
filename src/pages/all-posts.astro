@@ -1,26 +1,20 @@
 ---
 import Baselayout from "../layouts/BaseLayout.astro";
+import PostCard from "../components/PostCard.astro";
+const pageTitle = "All Posts";
+
+const allPosts = await Astro.glob("./posts/*.md");
 ---
 
-<Baselayout>
-  <a class="blog-card" href="/posts/be-receptive">
-    <div>
-      <h3 class="title">Be reflective</h3>
-      <p class="date">date</p>
-      <p class="description">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore magnam,
-        repellat soluta in deleniti sed? Lorem ipsum dolor sit amet consectetur
-        adipisicing elit. At tempora asperiores aliquid eos voluptatibus ipsum
-        est amet nam, itaque eligendi.
-      </p>
-    </div>
-  </a>
-</Baselayout>
-
-<style>
-  .title {
-    font-weight: var(--fw-medium);
-    font-size: 1.5rem;
-    text-align: center;
+<Baselayout pageTitle={pageTitle}>
+  {
+    allPosts.map((post) => (
+      <PostCard
+        url={post.url}
+        title={post.frontmatter.title}
+        pubDate={post.frontmatter.pubDate.toString().slice(0, 10)}
+        description={post.frontmatter.description}
+      />
+    ))
   }
-</style>
+</Baselayout>

@@ -1,0 +1,21 @@
+---
+const { url, title, pubDate, description } = Astro.props;
+---
+
+<a class="blog-card" href={url}>
+  <div>
+    <h3 class="title">{title}</h3>
+    <p class="date">{pubDate}</p>
+    <p class="description">
+      {description}
+    </p>
+  </div>
+</a>
+
+<style>
+  .title {
+    font-weight: var(--fw-medium);
+    font-size: 1.5rem;
+    text-align: center;
+  }
+</style>
