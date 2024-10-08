@@ -1,5 +1,5 @@
 ---
-layout: ../../layouts/Post.astro
+layout: ../../layouts/PostLayout.astro
 title: Having a plan is better than no plan
 pubDate: "Aug 05 2024"
 description: Sometimes bad plans are where you start but they get better as you go.
