@@ -4,6 +4,12 @@ import PostCard from "../components/PostCard.astro";
 const pageTitle = "All Posts";
 
 const allPosts = await Astro.glob("./posts/*.md");
+
+// sort the blogs fromt newest to oldest (descending order)
+allPosts.sort(
+  (a, b) =>
+    Date.parse(b.frontmatter.pubDate) - Date.parse(a.frontmatter.pubDate)
+);
 ---
 
 <Baselayout pageTitle={pageTitle}>
