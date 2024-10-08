@@ -1,7 +1,7 @@
 ---
 layout: ../../layouts/PostLayout.astro
 title: Having a plan is better than no plan
-pubDate: "Aug 05 2024"
+pubDate: 2024-10-05
 description: Sometimes bad plans are where you start but they get better as you go.
 author: "analytical bull"
 
