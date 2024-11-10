@@ -95,7 +95,7 @@ select {
 
 body {
     font-family: var(--ff-main);
-    background-color: #F2E7DC;
+    background-color: #ffffff;
     
     /* margin: 100px 400px; */
 }
@@ -115,7 +115,7 @@ main {
 
 .blog-title {
     font-family: var(--ff-header);
-    font-weight: var(--fw-bold);
+    font-weight: var(--fw-medium);
     font-size: 2.5rem;
     letter-spacing: 0.15rem;
     text-align: center;
@@ -151,10 +151,10 @@ main {
     padding-top: 0.25em;
     font-family: var(--ff-content);
     font-weight: var(--fw-regular);
-    color: #0D0D0D;
+    color: #333;
     font-size: 1.125rem;
     line-height: 1.75;
-    text-align: justify;
+    text-align: left;
 }
 
 

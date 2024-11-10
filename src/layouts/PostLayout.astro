@@ -6,10 +6,11 @@ const { frontmatter } = Astro.props;
 <BaseLayout pageTitle={frontmatter.title}>
   <h1 class="blog-title">{frontmatter.title}</h1>
   <h3 class="date">{frontmatter.pubDate.toString().slice(0, 10)}</h3>
+
   <section class="main-content">
     <slot />
     <div class="all-posts">
-      <a href="../../all-posts">All Posts >>></a>
+      <a href="../../all-posts">All Posts >></a>
     </div>
   </section>
 </BaseLayout>
@@ -22,7 +23,8 @@ const { frontmatter } = Astro.props;
 
   .all-posts {
     text-align: center;
-    padding-bottom: 50px;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
   }
 
   .date {
