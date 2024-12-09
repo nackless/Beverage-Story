@@ -1,11 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 const { frontmatter } = Astro.props;
+
+import dateFormat from "../utils/dateFormat";
 ---
 
 <BaseLayout pageTitle={frontmatter.title}>
   <h1 class="blog-title">{frontmatter.title}</h1>
-  <h3 class="date">{frontmatter.pubDate.toString().slice(0, 10)}</h3>
+
+  <h3 class="date"><>{dateFormat(frontmatter.pubDate)}</></h3>
+  <!-- <h3 class="date">{frontmatter.pubDate.toString().slice(0, 10)}</h3> -->
 
   <section class="main-content">
     <slot />
