@@ -1,12 +1,11 @@
 ---
-const { url, title, pubDate, description } = Astro.props;
-// import FormattedDate from "./FormattedDate.astro";
+const { url, title, date, description } = Astro.props;
 ---
 
 <a class="blog-card" href={url}>
   <div>
     <h3 class="title">{title}</h3>
-    <p class="date">{pubDate}</p>
+    <p class="date">{date}</p>
     <p class="description">
       {description}
     </p>

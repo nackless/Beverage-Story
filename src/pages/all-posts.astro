@@ -2,6 +2,7 @@
 import Baselayout from "../layouts/BaseLayout.astro";
 import PostCard from "../components/PostCard.astro";
 const pageTitle = "All Posts";
+import dateFormat from "../utils/dateFormat";
 
 const allPosts = await Astro.glob("./posts/*.md");
 
@@ -18,7 +19,7 @@ allPosts.sort(
       <PostCard
         url={post.url}
         title={post.frontmatter.title}
-        pubDate={post.frontmatter.pubDate.toString().slice(0, 10)}
+        date={dateFormat(post.frontmatter.pubDate)}
         description={post.frontmatter.description}
       />
     ))
