@@ -101,13 +101,13 @@ export default defineConfig({
     ],
   },
 
-  search: {
-    tina: {
-      indexerToken: '28d0e10f1b36319d510fa12d1bed025cdbfb2460',
-      stopwordLanguages: ['eng'],
-    },
-    indexBatchSize: 100,
-    maxSearchIndexFieldLength: 100,
-  },
+  // search: {
+  //   tina: {
+  //     indexerToken: '28d0e10f1b36319d510fa12d1bed025cdbfb2460',
+  //     stopwordLanguages: ['eng'],
+  //   },
+  //   indexBatchSize: 100,
+  //   maxSearchIndexFieldLength: 100,
+  // },
   
 });
