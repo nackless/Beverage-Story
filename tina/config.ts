@@ -73,8 +73,7 @@ export default defineConfig({
             name: "pubDate",
             label:"Publishing Date",
             required: true,
-            default: "{{now}}",
-            isPublishDate: true,
+            
 
           },
           {
