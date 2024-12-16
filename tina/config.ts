@@ -34,6 +34,16 @@ export default defineConfig({
         path: "src/pages/posts",
         fields: [
           {
+            
+              label: 'Layout',
+              name: 'layout',
+              type: 'string',
+              options: [
+                { label: 'Post Layout', value: '../../layouts/PostLayout.astro' },
+                // ...other layout options if needed
+              ],
+          },
+          {
             type: "string",
             name: "title",
             label: "Title",
@@ -45,6 +55,29 @@ export default defineConfig({
             name: "description",
             label: "Description",
             required: true,
+          },
+          {
+            type: "datetime",
+            name: "pubDate",
+            label:"Publishing Date",
+            required: true,
+            default: "{{now}}",
+            isPublishDate: true,
+
+          },
+          {
+            type: "string",
+            name: "author",
+            label: "Author",
+            
+            list: true,
+            options: [
+              {
+                value:"analytical bull",
+                label: "Analytical Bull",
+              },
+            
+            ],
           },
           {
             type: "rich-text",
