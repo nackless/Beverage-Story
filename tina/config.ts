@@ -109,6 +109,5 @@ export default defineConfig({
     indexBatchSize: 100,
     maxSearchIndexFieldLength: 100,
   },
-
   
 });
