@@ -7,9 +7,9 @@ author:
   - analytical bull
 ---
 
-If you have failed at doing something, don't find a excuse. That will only make you fail again. Excuses are for losers.
+If you have failed at doing something, don't find a excuse. That will only make you fail again. That will only hamper your personal growth. Excuses are for losers.
 
-The first step is to accept that there is a problem, it can be you, someone else or the system. Find that problem and solve it. 
+The first step is to accept that there is a problem, it can be you, someone else or the system. Find that problem and solve it.
 
 That's the only way you will ever be successful. Make a note of why you failed.
 
