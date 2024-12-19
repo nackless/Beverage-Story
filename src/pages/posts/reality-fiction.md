@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/PostLayout.astro
 title: Is this all real?
 pubDate: 2024-09-01
 
