@@ -35,26 +35,16 @@ export default defineConfig({
         path: "src/pages/posts",
         defaultItem: () => ({
           title: "New Post",
-          layout: "../../layouts/PostLayout.astro",
+          // layout: "../../layouts/PostLayout.astro",
         }),
         fields: [
-          {
-						name: "layout",
-						label: "Layout",
-						type: "string",
-						required: true,
-						searchable: false,
-					},
           // {
-            
-          //     label: 'Layout',
-          //     name: 'layout',
-          //     type: 'string',
-          //     options: [
-          //       { label: 'Post Layout', value: '../../layouts/PostLayout.astro' },
-          //       // ...other layout options if needed
-          //     ],
-          // },
+					// 	name: "layout",
+					// 	label: "Layout",
+					// 	type: "string",
+					// 	required: true,
+					// 	searchable: false,
+					// },
           {
             type: "string",
             name: "title",

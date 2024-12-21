@@ -5,6 +5,7 @@ pubDate: 2024-09-01
 description: "We often don't realise how everything around us is so unreal but how we have come to just believe?"
 author: analytical bull
 tags: ["Life lessons", "wisdom"]
+slug: "09"
 ---
 
 As a species, humans have undeniably asserted their dominance over the planet, establishing complex societies that are often divided along the lines of economic status, religion, caste, color, and ethnicity. These divisions, constructs of our own making, paint a paradoxical picture of a species that has risen to the apex of the food chain while simultaneously entangling itself in conflicts born of its own creation.

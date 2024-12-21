@@ -1,10 +1,10 @@
 ---
-layout: ../../layouts/PostLayout.astro
-title: 'Excuse is not the way to go '
-description: 'Solve a problem, don''t be a cause of one.'
+title: "Excuse is not the way to go "
+description: "Solve a problem, don't be a cause of one."
 pubDate: 2024-12-17T00:00:00.000Z
-author:
-  - analytical bull
+author: analytical bull
+tags: ["Life lessons"]
+slug: "05"
 ---
 
 If you have failed at doing something, don't find a excuse. That will only make you fail again. That will only hamper your personal growth. Excuses are for losers.
