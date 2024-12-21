@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/PostLayout.astro
 title: "Excuse is not the way to go "
 description: "Solve a problem, don't be a cause of one."
 pubDate: 2024-12-17T00:00:00.000Z
