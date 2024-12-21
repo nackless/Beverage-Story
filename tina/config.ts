@@ -45,16 +45,6 @@ export default defineConfig({
 						required: true,
 						searchable: false,
 					},
-          // {
-            
-          //     label: 'Layout',
-          //     name: 'layout',
-          //     type: 'string',
-          //     options: [
-          //       { label: 'Post Layout', value: '../../layouts/PostLayout.astro' },
-          //       // ...other layout options if needed
-          //     ],
-          // },
           {
             type: "string",
             name: "title",
