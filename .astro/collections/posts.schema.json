@@ -13,23 +13,16 @@
         "pubDate": {
           "anyOf": [
             {
-              "type": "string"
+              "type": "string",
+              "format": "date-time"
             },
             {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                {
-                  "type": "string",
-                  "format": "date"
-                },
-                {
-                  "type": "integer",
-                  "format": "unix-time"
-                }
-              ]
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
             }
           ]
         },
@@ -67,6 +60,7 @@
       },
       "required": [
         "title",
+        "pubDate",
         "slug",
         "author",
         "tags"
