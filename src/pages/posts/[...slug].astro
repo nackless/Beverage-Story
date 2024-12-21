@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/PostLayout.astro";
-import type { AnyARecord } from "dns";
 
 export async function getStaticPaths() {
   let posts = await getCollection("posts");
@@ -11,10 +10,12 @@ export async function getStaticPaths() {
   }));
 }
 
+const { slug } = Astro.params;
 const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
 <Layout frontmatter={post.data}>
+  <!-- <div>{slug}</div> -->
   <Content />
 </Layout>

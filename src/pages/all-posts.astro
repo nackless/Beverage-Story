@@ -18,7 +18,7 @@ posts.sort(
   {
     posts.map((post) => (
       <PostCard
-        url={post.id}
+        url={`/posts/${post.id}/`}
         title={post.data.title}
         date={post.data.pubDate}
         description={post.data.description}
