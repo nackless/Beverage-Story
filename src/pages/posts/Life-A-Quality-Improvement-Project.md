@@ -5,6 +5,7 @@ description: Sometimes bad plans are where you start but they get better as you 
 author: "analytical bull"
 
 tags: ["Productivity", "Meaning", "Forward planning"]
+slug: "08"
 ---
 
 ### Life’s Challenges and the Quest for Meaningful Change
