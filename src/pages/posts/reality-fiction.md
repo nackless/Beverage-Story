@@ -4,7 +4,7 @@ pubDate: 2024-09-01
 
 description: "We often don't realise how everything around us is so unreal but how we have come to just believe?"
 author: analytical bull
-tags: ["Life lessons", "wisdom"]
+tags: ["life lessons", "wisdom"]
 slug: "09"
 ---
 
