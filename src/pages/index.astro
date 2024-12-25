@@ -1,5 +1,9 @@
 ---
+import { getCollection } from "astro:content";
 
+const posts = (await getCollection("posts")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
 ---
 
-<meta http-equiv="refresh" content={`0, url="../posts/01"`} />
+<meta http-equiv="refresh" content={`0, url="../posts/${posts[0].id}"`} />
