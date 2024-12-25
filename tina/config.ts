@@ -35,6 +35,7 @@ export default defineConfig({
         path: "src/pages/posts",
         defaultItem: () => ({
           title: "New Post",
+          author: "analytical bull"
           // layout: "../../layouts/PostLayout.astro",
         }),
         fields: [
@@ -70,14 +71,52 @@ export default defineConfig({
             type: "string",
             name: "author",
             label: "Author",
-            
+            required: true,
+          },
+          {
+						type: "string",
+						name: "slug",
+            label: "Slug",
+						required: true,
+					},
+          {
+            type: "string",
+            name: "tag",
+            label: "Tag",
             list: true,
-            options: [
+						options: [
+							{
+								value: "technical",
+								label: "Technical",
+							},
+							{
+								value: "advice",
+								label: "Advice",
+							},							
+							{
+								value: "learning",
+								label: "Learning",
+							},
+							{
+								value: "life lessons",
+								label: "Life lessons",
+							},
+							{
+								value: "wisdom",
+								label: "Wisdom",
+							},
+							{
+								value: "productivity",
+								label: "Productivity",
+							},
+							{
+								value: "meaning",
+								label: "Meaning",
+							},
               {
-                value:"analytical bull",
-                label: "Analytical Bull",
-              },
-            
+								value: "forward planning",
+								label: "Forward planning",
+							},
             ],
           },
           {

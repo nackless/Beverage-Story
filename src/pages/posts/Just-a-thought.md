@@ -6,7 +6,7 @@ description: "This is a trial post to check it it works"
 # image:
 #     url: 'https://docs.astro.build/assets/rose.webp'
 #     alt: 'The Astro logo on a dark background with a pink glow.'
-tags: ["Life lessons", "trial"]
+tags: ["life lessons"]
 slug: "06"
 ---
 

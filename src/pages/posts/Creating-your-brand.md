@@ -4,8 +4,7 @@ description: This is a trial post to check it it works
 pubDate: 2024-12-15T00:00:00.000Z
 author: analytical bull
 tags:
-  - Life lessons
-  - trial
+  - life lessons
 slug: "04"
 ---
 
