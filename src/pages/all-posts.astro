@@ -5,13 +5,13 @@ import PostCard from "../components/PostCard.astro";
 const pageTitle = "All Posts";
 import dateFormat from "../utils/dateFormat";
 
-// const allPosts = await Astro.glob("./posts/*.md");
+// const allPosts = await Astro.glob("./posts/*.md"); - deprecated
+
+// get posts from getCollections
 const posts = await getCollection("posts");
 
-// sort the blogs fromt newest to oldest (descending order)
-posts.sort(
-  (a: any, b: any) => Date.parse(b.data.pubDate) - Date.parse(a.data.pubDate)
-);
+// sort the blog posts fromt newest to oldest (descending order)
+posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <Baselayout pageTitle={pageTitle}>
