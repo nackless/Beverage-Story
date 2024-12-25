@@ -6,7 +6,7 @@ author: "analytical bull"
 # image:
 #     url: 'https://docs.astro.build/assets/rose.webp'
 #     alt: 'The Astro logo on a dark background with a pink glow.'
-tags: ["Life lessons", "wisdom"]
+tags: ["life lessons", "wisdom"]
 slug: "01"
 ---
 
