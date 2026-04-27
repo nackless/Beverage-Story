@@ -26,6 +26,22 @@
             }
           ]
         },
+        "date": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
         "slug": {
           "type": "string"
         },
@@ -58,13 +74,6 @@
           "type": "string"
         }
       },
-      "required": [
-        "title",
-        "pubDate",
-        "slug",
-        "author",
-        "tags"
-      ],
       "additionalProperties": false
     }
   },
