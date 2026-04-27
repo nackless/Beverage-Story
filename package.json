@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tinacms dev -c \"astro dev\"",
     "start": "astro dev",
-    "build": "tinacms build && astro build",
+    "build": "npm install && tinacms build && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -13,10 +13,10 @@
     "astro": "^5.0.4",
     "date-fns": "^4.1.0",
     "tinacms": "^2.5.2",
-    "zod": "^3.25.76"
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@tinacms/cli": "^1.7.0",
+    "@tinacms/cli": "^2.5.2",
     "@types/node": "^22.10.2",
     "rollup": "^3.29.4"
   }

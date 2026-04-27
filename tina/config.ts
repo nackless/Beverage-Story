@@ -1,6 +1,4 @@
-import { title } from "process";
-import { defineConfig, tinaTableTemplate } from "tinacms";
-
+import { 
 // Your hosting provider likely exposes this as an environment variable
 const branch =
   // process.env.GITHUB_BRANCH ||
