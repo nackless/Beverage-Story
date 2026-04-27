@@ -32,7 +32,7 @@ export default defineConfig({
       {
         name: "post",
         label: "Posts",
-        path: "src/pages/posts",
+        path: "src/content/posts",
         defaultItem: () => ({
           title: "New Post",
           author: "analytical bull"
