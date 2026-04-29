@@ -1,0 +1,27 @@
+---
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  // 1. Fetch all of your posts
+  const posts = await getCollection("posts").catch(() => []);
+
+  // 2. Return an array of objects, each containing the `params` (the slug) 
+  // and optionally `props` (the actual post data to use in the template)
+  return posts.map((post) => {
+    // We use the same fallback logic you used in index.astro
+    const slug = post.data?.slug || post.slug || post.id;
+    return {
+      params: { slug: slug },
+      props: { post },
+    };
+  });
+}
+
+// 3. Access the passed post data via Astro.props
+const { post } = Astro.props;
+---
+
+<!-- Your HTML template goes here -->
+<h1>{post.data.title}</h1>
+<p>{post.data.description}</p>
+<!-- To render the body content, you usually use the <Content /> component -->
