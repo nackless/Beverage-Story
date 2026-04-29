@@ -20,7 +20,7 @@ export default defineConfig({
 
   media: {
     tina: {
-      mediaRoot: "",
+      mediaRoot: "uploads",
       publicFolder: "public",
     },
   },
@@ -117,6 +117,11 @@ export default defineConfig({
 								label: "Forward planning",
 							},
             ],
+          },
+          {
+            type: "image",
+            name: "image",
+            label: "Cover Image",
           },
           {
             type: "rich-text",
