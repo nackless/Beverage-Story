@@ -16,5 +16,3 @@ image:
 ---
 
 If your skill can be taught, you can be replaced. Develop skills that are required but not easy to teach. This will make you an asset that everyone will need.
-
-![](</uploads/photo_2023-12-10 17.53.57.jpeg>)
