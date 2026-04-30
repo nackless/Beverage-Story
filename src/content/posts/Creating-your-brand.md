@@ -3,9 +3,12 @@ title: Creating your brand
 description: This is a trial post to check it it works
 pubDate: 2024-12-15T00:00:00.000Z
 author: analytical bull
+slug: '04'
 tags:
   - life lessons
-slug: "04"
+image:
+  url: /uploads/BALEE8REQOLF.jpg
+  alignment: center
 ---
 
 Life is more about realizing that all that looks difficult is no more difficult than difficult can be. What is the worse case scenario?
