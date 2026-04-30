@@ -11,8 +11,6 @@ tags:
 
 As a species, humans have undeniably asserted their dominance over the planet, establishing complex societies that are often divided along the lines of economic status, religion, caste, color, and ethnicity. These divisions, constructs of our own making, paint a paradoxical picture of a species that has risen to the apex of the food chain while simultaneously entangling itself in conflicts born of its own creation.
 
-![PRINCESS](/uploads/IMG20260429172546.jpg "MY LITTLE HEART")
-
 <br />
 Across generations, humankind has experienced leaps of progress, stumbling upon groundbreaking advancements in science, literature, and technology. These achievements, which at times appear nothing short of miraculous, are the fruits of human ingenuity, creativity, and relentless pursuit of knowledge. Yet, despite the profound nature of this progress, our minds are curiously conditioned to perceive these feats as ordinary, to accept them as the natural course of human development, without fully grasping their true significance.
 
