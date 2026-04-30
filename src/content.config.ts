@@ -14,10 +14,18 @@ const posts = defineCollection({
       date: z.coerce.date().optional(),
       slug: z.string().optional(),
       author: z.string().optional(),
-      image: z.object({
-        url: z.string(),
-        alt: z.string()
-      }).optional(),
+      image: z.preprocess(
+        (val: any) => {
+          if (!val) return val;
+          const url = typeof val === 'string' ? val : val.url;
+          const alt = typeof val === 'string' ? '' : val.alt;
+          return { url, alt };
+        },
+        z.object({
+          url: z.string(),
+          alt: z.string().optional()
+        })
+      ).optional(),
       tags: z.array(z.string()).optional()
     })
 });

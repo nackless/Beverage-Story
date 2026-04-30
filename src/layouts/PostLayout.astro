@@ -1,8 +1,39 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { Image, getImage } from "astro:assets";
 const { frontmatter } = Astro.props;
 
 import dateFormat from "../utils/dateFormat";
+
+// Cloudinary config
+const cloudinaryEnabled = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+
+// Optimize cover images
+let coverImageUrl: string | null = null;
+let imageAlt = frontmatter.title;
+
+if (frontmatter.image?.url && typeof frontmatter.image.url === 'string') {
+  const imageUrl = frontmatter.image.url;
+  imageAlt = frontmatter.image.alt || frontmatter.title;
+  
+  // Check if image is from Cloudinary
+  if (imageUrl.includes('cloudinary.com')) {
+    // Add transformations to Cloudinary URL for optimization
+    const width = frontmatter.image?.width || 800;
+    // Insert transformations before the filename
+    const parts = imageUrl.split('/upload/');
+    if (parts.length === 2) {
+      // Add responsive width, quality optimization, and format
+      const transforms = `c_limit,w_${width},q_auto,f_auto/`;
+      coverImageUrl = `${parts[0]}/upload/${transforms}${parts[1]}`;
+    } else {
+      coverImageUrl = imageUrl;
+    }
+  } else if (imageUrl.startsWith('/uploads/')) {
+    // Local uploads (no optimization)
+    coverImageUrl = imageUrl;
+  }
+}
 ---
 
 <BaseLayout pageTitle={frontmatter.title}>
@@ -10,6 +41,26 @@ import dateFormat from "../utils/dateFormat";
 
   <p class="date">{dateFormat(frontmatter.pubDate)}</p>
   <!-- <h3 class="date">{frontmatter.pubDate.toString().slice(0, 10)}</h3> -->
+
+  {coverImageUrl && (
+    <div class={`cover-image-wrapper align-${frontmatter.image?.alignment || 'center'}`}>
+      <div 
+        class="image-container"
+        style={`border-radius: ${frontmatter.image?.borderRadius || 8}px;`}
+      >
+        <img 
+          src={coverImageUrl} 
+          alt={imageAlt}
+          width={frontmatter.image?.width || 800}
+          height={frontmatter.image?.height || 450}
+          loading="lazy"
+        />
+      </div>
+      {frontmatter.image?.caption && (
+        <p class="image-caption">{frontmatter.image.caption}</p>
+      )}
+    </div>
+  )}
 
   <section class="main-content">
     <slot />
@@ -54,5 +105,48 @@ import dateFormat from "../utils/dateFormat";
       margin-bottom: 0.5em;
       margin-left: auto;
     }
+  }
+
+  .cover-image-wrapper {
+    margin: 2em 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cover-image-wrapper.align-left {
+    align-items: flex-start;
+  }
+
+  .cover-image-wrapper.align-right {
+    align-items: flex-end;
+  }
+
+  .cover-image-wrapper.align-center {
+    align-items: center;
+  }
+
+  .image-container {
+    overflow: hidden;
+    max-width: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-container img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    width: 100%;
+  }
+
+  .image-caption {
+    font-size: 0.9em;
+    color: #666;
+    text-align: center;
+    margin-top: 0.5em;
+    font-style: italic;
   }
 </style>

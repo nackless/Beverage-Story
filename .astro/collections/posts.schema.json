@@ -59,8 +59,7 @@
             }
           },
           "required": [
-            "url",
-            "alt"
+            "url"
           ],
           "additionalProperties": false
         },
