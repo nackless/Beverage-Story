@@ -1,5 +1,12 @@
+import 'dotenv/config';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 import { defineConfig } from "tinacms";
 import { cloudinaryMediaProvider } from "./cloudinaryMediaProvider";
+
+// Explicitly load .env.local
+const envPath = path.resolve(process.cwd(), '.env.local');
+dotenv.config({ path: envPath });
 
 // Your hosting provider likely exposes this as an environment variable
 const branch =
@@ -8,9 +15,14 @@ const branch =
   process.env.HEAD || "main";
 
 // Cloudinary setup
-const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME;
-const uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-const useCloudinary = cloudName && uploadPreset;
+const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
+const uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;
+const useCloudinary = !!(cloudName && uploadPreset);
+
+console.log('🔍 TinaCMS Config Debug:');
+console.log('  Cloud Name:', cloudName ? '✅ Set' : '❌ Missing');
+console.log('  Upload Preset:', uploadPreset ? '✅ Set' : '❌ Missing');
+console.log('  Using Cloudinary:', useCloudinary ? '✅ Yes' : '❌ No (falling back to local uploads)');
 
 export default defineConfig({
   branch,

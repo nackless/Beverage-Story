@@ -1,37 +1,52 @@
+import * as dotenv from 'dotenv';
+import * as path from 'path';
 import type { MediaStore, MediaListOptions, MediaUploadOptions } from 'tinacms';
 
-const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME;
-const uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+// Load .env.local explicitly
+const envPath = path.resolve(process.cwd(), '.env.local');
+dotenv.config({ path: envPath });
+
+const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
+const uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;
+
+console.log('🔍 Cloudinary Provider Debug:');
+console.log('  Cloud Name:', cloudName ? '✅ Detected' : '❌ Not found');
+console.log('  Upload Preset:', uploadPreset ? '✅ Detected' : '❌ Not found');
 
 export const cloudinaryMediaProvider: MediaStore = {
   async persist(files: MediaUploadOptions[]) {
     if (!cloudName || !uploadPreset) {
-      console.error('Cloudinary credentials not configured');
-      throw new Error('Cloudinary Cloud Name or Upload Preset not configured');
+      const error = `Cloudinary credentials missing. Cloud Name: ${!cloudName ? '❌' : '✅'}, Preset: ${!uploadPreset ? '❌' : '✅'}`;
+      console.error('❌ ' + error);
+      throw new Error(error);
     }
 
+    console.log(`📤 Uploading ${files.length} file(s) to Cloudinary...`);
     const uploaded = [];
 
     for (const file of files) {
       const formData = new FormData();
       formData.append('file', file.file);
-      formData.append('upload_preset', uploadPreset);
+      formData.append('upload_preset', uploadPreset!);
       formData.append('folder', 'tina-cms'); // Organize uploads in a folder
 
       try {
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
-          {
-            method: 'POST',
-            body: formData,
-          }
-        );
+        const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+        console.log(`  📤 Uploading: ${file.file.name} to ${url}`);
+        
+        const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+        });
 
         if (!response.ok) {
-          throw new Error(`Upload failed: ${response.statusText}`);
+          const errorText = await response.text();
+          throw new Error(`Upload failed (${response.status}): ${errorText}`);
         }
 
         const data = await response.json() as any;
+        
+        console.log(`  ✅ Uploaded: ${file.file.name} → ${data.secure_url}`);
         
         uploaded.push({
           directory: file.directory,
@@ -42,11 +57,12 @@ export const cloudinaryMediaProvider: MediaStore = {
           },
         });
       } catch (error) {
-        console.error('Cloudinary upload error:', error);
+        console.error('❌ Cloudinary upload error:', error);
         throw error;
       }
     }
 
+    console.log(`✅ Successfully uploaded ${uploaded.length} file(s)`);
     return uploaded;
   },
 
