@@ -6,7 +6,11 @@ import { z, defineCollection } from "astro:content";
 
 // Define a `loader` and `schema` for each collection
 const posts = defineCollection({
-    loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: "./src/content/posts" }),
+    loader: glob({ 
+      pattern: '**/[^_]*.{md,mdx}', 
+      base: "./src/content/posts",
+      generateId: ({ entry, data }) => data.id ? String(data.id) : entry.replace(/\.[^/.]+$/, "")
+    }),
     schema: z.object({
       title: z.string().optional(),
       description: z.string().optional(),
