@@ -8,7 +8,7 @@ tags:
   - life lessons
   - wisdom
 image:
-  url: /uploads/photo_2023-12-10 17.53.57.jpeg
+  url: ''
   alt: me
   caption: Me looking tired
   borderRadius: 999
