@@ -22,7 +22,7 @@ export default defineConfig({
 
   
   clientId: "1efb06e9-53f1-4452-bb54-a224ec8ecc1a", // Get this from tina.io
-  token: "[REDACTED]", // Get this from tina.io
+  token: process.env.TINA_TOKEN, // Get this from tina.io
 
   media: useCloudinary
     ? {
