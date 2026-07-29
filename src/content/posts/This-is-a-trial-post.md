@@ -15,3 +15,6 @@ image:
   alignment: center
 ---
 
+Not sure but the image is not showing up. Lets see if it does
+
+![](https://assets.tina.io/1efb06e9-53f1-4452-bb54-a224ec8ecc1a/guitar%20chords.gif)
