@@ -2,3 +2,6 @@ node_modules
 
 .env
 .astro
+.env.local
+
+tina/__generated__
