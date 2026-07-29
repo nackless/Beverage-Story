@@ -3,10 +3,6 @@ import type { MediaStore, MediaListOptions, MediaUploadOptions } from 'tinacms';
 const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
 const uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;
 
-console.log('🔍 Cloudinary Provider Debug:');
-console.log('  Cloud Name:', cloudName ? '✅ Detected' : '❌ Not found');
-console.log('  Upload Preset:', uploadPreset ? '✅ Detected' : '❌ Not found');
-
 export const cloudinaryMediaProvider: MediaStore = {
   async persist(files: MediaUploadOptions[]) {
     if (!cloudName || !uploadPreset) {

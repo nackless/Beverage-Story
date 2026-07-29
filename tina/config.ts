@@ -17,11 +17,6 @@ const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINA
 const uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;
 const useCloudinary = !!(cloudName && uploadPreset);
 
-console.log('🔍 TinaCMS Config Debug:');
-console.log('  Cloud Name:', cloudName ? '✅ Set' : '❌ Missing');
-console.log('  Upload Preset:', uploadPreset ? '✅ Set' : '❌ Missing');
-console.log('  Using Cloudinary:', useCloudinary ? '✅ Yes' : '❌ No (falling back to local uploads)');
-
 export default defineConfig({
   branch,
 
