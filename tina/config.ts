@@ -1,6 +1,11 @@
 import { defineConfig } from "tinacms";
 import { cloudinaryMediaProvider } from "./cloudinaryMediaProvider";
 
+const slugify = (str: string) => {
+  const s = str.toLowerCase().trim().replace(/ /g, '-').replace(/[-]+/g, '-').replace(/[^\w-]+/g, '');
+  return s;
+}
+
 // Your hosting provider likely exposes this as an environment variable
 const branch =
   // process.env.GITHUB_BRANCH ||
@@ -47,6 +52,14 @@ export default defineConfig({
         name: "post",
         label: "Posts",
         path: "src/content/posts",
+        ui: {
+          filename: {
+            readonly: true,
+            slugify: (values) => {
+              return slugify(values.title);
+            },
+          },
+        },
         defaultItem: () => ({
           title: "New Post",
           author: "analytical bull"
