@@ -1,10 +1,4 @@
-import * as dotenv from 'dotenv';
-import * as path from 'path';
 import type { MediaStore, MediaListOptions, MediaUploadOptions } from 'tinacms';
-
-// Load .env.local explicitly
-const envPath = path.resolve(process.cwd(), '.env.local');
-dotenv.config({ path: envPath });
 
 const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
 const uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;

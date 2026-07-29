@@ -1,12 +1,5 @@
-import 'dotenv/config';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
 import { defineConfig } from "tinacms";
 import { cloudinaryMediaProvider } from "./cloudinaryMediaProvider";
-
-// Explicitly load .env.local
-const envPath = path.resolve(process.cwd(), '.env.local');
-dotenv.config({ path: envPath });
 
 // Your hosting provider likely exposes this as an environment variable
 const branch =
