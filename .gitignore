@@ -1,7 +1,7 @@
 node_modules
 
 .env
-.astro
 .env.local
-
-tina/__generated__
+.astro
+public/uploads/
+tina/__generated__/
