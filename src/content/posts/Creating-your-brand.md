@@ -6,9 +6,6 @@ author: analytical bull
 slug: '04'
 tags:
   - life lessons
-image:
-  url: /uploads/BALEE8REQOLF.jpg
-  alignment: center
 ---
 
 Life is more about realizing that all that looks difficult is no more difficult than difficult can be. What is the worse case scenario?
