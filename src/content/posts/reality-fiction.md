@@ -1,7 +1,7 @@
 ---
 title: Is this all real?
 description: We often don't realise how everything around us is so unreal but how we have come to just believe?
-pubDate: 2024-09-01T00:00:00.000Z
+pubDate: 2024-09-01
 author: analytical bull
 slug: 09
 tags:
