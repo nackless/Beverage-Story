@@ -204,15 +204,15 @@ var config_default = defineConfig({
             }
           },
           beforeSubmit: async ({ values }) => {
+            const titleSlug = slugify(values?.title);
             return {
               ...values,
-              slug: values?.slug ? slugify(values.slug) : slugify(values?.title) || "new-post"
+              slug: titleSlug || slugify(values?.slug) || "new-post"
             };
           }
         },
         defaultItem: () => ({
           title: "New Post",
-          slug: "new-post",
           author: "analytical bull"
         }),
         fields: [
