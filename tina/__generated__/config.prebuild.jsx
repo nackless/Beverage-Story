@@ -44,12 +44,14 @@ var init_cloudinaryMediaProvider = __esm({
     CloudinaryMediaStore = class {
       constructor() {
         __publicField(this, "accept", "image/*");
+        __publicField(this, "sessionItems", []);
       }
       async previewSrc(src) {
-        if (!src || typeof src !== "string") {
-          console.warn("\u26A0\uFE0F previewSrc called with invalid src:", src);
-          return "";
+        if (!src) return "";
+        if (typeof src === "object" && src !== null) {
+          return src.src || src.url || src.id || "";
         }
+        if (typeof src !== "string") return "";
         return src;
       }
       async persist(files) {
@@ -100,13 +102,17 @@ var init_cloudinaryMediaProvider = __esm({
             }
             console.log(`  \u2705 Uploaded: ${file.file.name} \u2192 ${data.secure_url}`);
             const itemId = `${file.directory || ""}/${file.file.name}`.replace(/^\//, "");
-            uploaded.push({
+            const mediaItem = {
               id: itemId,
               type: "file",
               filename: file.file.name || "upload",
               directory: file.directory || "",
               src: data.secure_url
-            });
+            };
+            uploaded.push(mediaItem);
+            if (!this.sessionItems.some((i) => i.src === mediaItem.src)) {
+              this.sessionItems.unshift(mediaItem);
+            }
           } catch (error) {
             console.error("\u274C Cloudinary upload error:", error);
             throw error;
@@ -116,29 +122,16 @@ var init_cloudinaryMediaProvider = __esm({
         return uploaded;
       }
       async list(options) {
-        const { cloudName } = getCloudinaryConfig();
-        if (!cloudName) {
-          console.error("Cloudinary Cloud Name not configured");
-          throw new Error("Cloudinary Cloud Name not configured");
-        }
-        try {
-          return {
-            items: []
-          };
-        } catch (error) {
-          console.error("Cloudinary list error:", error);
-          return {
-            items: []
-          };
-        }
+        return {
+          items: this.sessionItems,
+          nextOffset: null
+        };
       }
-      async delete(asset) {
-        const { cloudName } = getCloudinaryConfig();
-        if (!cloudName) {
-          console.error("Cloudinary Cloud Name not configured");
-          throw new Error("Cloudinary Cloud Name not configured");
+      async delete(media) {
+        const target = typeof media === "string" ? media : media?.src || media?.id;
+        if (target) {
+          this.sessionItems = this.sessionItems.filter((i) => i.src !== target && i.id !== target);
         }
-        console.warn("Deletion not implemented for client-side Cloudinary integration");
       }
     };
     cloudinaryMediaProvider = new CloudinaryMediaStore();
@@ -287,7 +280,11 @@ var config_default = defineConfig({
               {
                 type: "image",
                 name: "url",
-                label: "Image URL"
+                label: "Image URL",
+                ui: {
+                  parse: (media) => typeof media === "object" && media !== null ? media.src || media.url || "" : media,
+                  format: (value) => typeof value === "object" && value !== null ? value.src || value.url || "" : value
+                }
               },
               {
                 type: "string",
@@ -355,7 +352,11 @@ var config_default = defineConfig({
                     name: "src",
                     label: "Image Source",
                     type: "image",
-                    required: true
+                    required: true,
+                    ui: {
+                      parse: (media) => typeof media === "object" && media !== null ? media.src || media.url || "" : media,
+                      format: (value) => typeof value === "object" && value !== null ? value.src || value.url || "" : value
+                    }
                   },
                   {
                     name: "alt",

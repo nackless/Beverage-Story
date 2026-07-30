@@ -180,6 +180,10 @@ export default defineConfig({
                 type: "image",
                 name: "url",
                 label: "Image URL",
+                ui: {
+                  parse: (media: any) => (typeof media === 'object' && media !== null ? (media.src || media.url || '') : media),
+                  format: (value: any) => (typeof value === 'object' && value !== null ? (value.src || value.url || '') : value),
+                },
               },
               {
                 type: "string",
@@ -248,6 +252,10 @@ export default defineConfig({
                     label: "Image Source",
                     type: "image",
                     required: true,
+                    ui: {
+                      parse: (media: any) => (typeof media === 'object' && media !== null ? (media.src || media.url || '') : media),
+                      format: (value: any) => (typeof value === 'object' && value !== null ? (value.src || value.url || '') : value),
+                    },
                   },
                   {
                     name: "alt",

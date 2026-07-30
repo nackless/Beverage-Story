@@ -63,12 +63,14 @@ const readFileAsBase64 = (file: File) =>
 
 export class CloudinaryMediaStore implements MediaStore {
   accept = 'image/*';
+  private sessionItems: Media[] = [];
 
-  async previewSrc(src: string) {
-    if (!src || typeof src !== 'string') {
-      console.warn('⚠️ previewSrc called with invalid src:', src);
-      return '';
+  async previewSrc(src: any) {
+    if (!src) return '';
+    if (typeof src === 'object' && src !== null) {
+      return src.src || src.url || src.id || '';
     }
+    if (typeof src !== 'string') return '';
     return src;
   }
 
@@ -82,7 +84,7 @@ export class CloudinaryMediaStore implements MediaStore {
     }
 
     console.log(`📤 Uploading ${files.length} file(s) to Cloudinary...`);
-    const uploaded = [];
+    const uploaded: Media[] = [];
 
     const uploadDirectly = async (file: File) => {
       const cleanPreset = uploadPreset!.trim();
@@ -136,13 +138,19 @@ export class CloudinaryMediaStore implements MediaStore {
         console.log(`  ✅ Uploaded: ${file.file.name} → ${data.secure_url}`);
 
         const itemId = `${file.directory || ''}/${file.file.name}`.replace(/^\//, '');
-        uploaded.push({
+        const mediaItem: Media = {
           id: itemId,
           type: 'file',
           filename: file.file.name || 'upload',
           directory: file.directory || '',
           src: data.secure_url,
-        });
+        };
+        uploaded.push(mediaItem);
+
+        // Add to session list if not already present
+        if (!this.sessionItems.some((i) => i.src === mediaItem.src)) {
+          this.sessionItems.unshift(mediaItem);
+        }
       } catch (error) {
         console.error('❌ Cloudinary upload error:', error);
         throw error;
@@ -154,39 +162,17 @@ export class CloudinaryMediaStore implements MediaStore {
   }
 
   async list(options?: MediaListOptions) {
-    const { cloudName } = getCloudinaryConfig();
-
-    if (!cloudName) {
-      console.error('Cloudinary Cloud Name not configured');
-      throw new Error('Cloudinary Cloud Name not configured');
-    }
-
-    try {
-      // Note: This requires a server-side API call with your Cloudinary API key
-      // For now, we'll return an empty list as this requires backend authentication
-      // You can implement this with a backend API endpoint if needed
-      return {
-        items: [],
-      };
-    } catch (error) {
-      console.error('Cloudinary list error:', error);
-      return {
-        items: [],
-      };
-    }
+    return {
+      items: this.sessionItems,
+      nextOffset: null,
+    };
   }
 
-  async delete(asset: string) {
-    const { cloudName } = getCloudinaryConfig();
-
-    if (!cloudName) {
-      console.error('Cloudinary Cloud Name not configured');
-      throw new Error('Cloudinary Cloud Name not configured');
+  async delete(media: any) {
+    const target = typeof media === 'string' ? media : (media?.src || media?.id);
+    if (target) {
+      this.sessionItems = this.sessionItems.filter((i) => i.src !== target && i.id !== target);
     }
-
-    // Note: Deleting requires your Cloudinary API key (backend only)
-    // For security, deletion should be handled via a backend endpoint
-    console.warn('Deletion not implemented for client-side Cloudinary integration');
   }
 }
 
