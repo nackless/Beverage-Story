@@ -1,5 +1,6 @@
 var __defProp = Object.defineProperty;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __esm = (fn, res) => function __init() {
   return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
 };
@@ -7,13 +8,15 @@ var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
 };
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
 // tina/cloudinaryMediaProvider.ts
 var cloudinaryMediaProvider_exports = {};
 __export(cloudinaryMediaProvider_exports, {
+  CloudinaryMediaStore: () => CloudinaryMediaStore,
   cloudinaryMediaProvider: () => cloudinaryMediaProvider
 });
-var getEnvValue, getCloudinaryConfig, readFileAsBase64, cloudinaryMediaProvider;
+var getEnvValue, getCloudinaryConfig, readFileAsBase64, CloudinaryMediaStore, cloudinaryMediaProvider;
 var init_cloudinaryMediaProvider = __esm({
   "tina/cloudinaryMediaProvider.ts"() {
     "use strict";
@@ -46,11 +49,13 @@ var init_cloudinaryMediaProvider = __esm({
       reader.onerror = () => reject(reader.error || new Error("Failed to read file"));
       reader.readAsDataURL(file);
     });
-    cloudinaryMediaProvider = {
-      accept: "*",
-      previewSrc(src) {
+    CloudinaryMediaStore = class {
+      constructor() {
+        __publicField(this, "accept", "image/*");
+      }
+      async previewSrc(src) {
         return src;
-      },
+      }
       async persist(files) {
         const { cloudName, uploadPreset } = getCloudinaryConfig();
         if (!cloudName || !uploadPreset) {
@@ -126,7 +131,7 @@ var init_cloudinaryMediaProvider = __esm({
         }
         console.log(`\u2705 Successfully uploaded ${uploaded.length} file(s)`);
         return uploaded;
-      },
+      }
       async list(options) {
         const { cloudName } = getCloudinaryConfig();
         if (!cloudName) {
@@ -147,7 +152,7 @@ var init_cloudinaryMediaProvider = __esm({
             hasNextPage: false
           };
         }
-      },
+      }
       async delete(asset) {
         const { cloudName } = getCloudinaryConfig();
         if (!cloudName) {
@@ -157,6 +162,7 @@ var init_cloudinaryMediaProvider = __esm({
         console.warn("Deletion not implemented for client-side Cloudinary integration");
       }
     };
+    cloudinaryMediaProvider = new CloudinaryMediaStore();
   }
 });
 
@@ -181,8 +187,8 @@ var config_default = defineConfig({
   token,
   media: {
     loadCustomStore: async () => {
-      const { cloudinaryMediaProvider: cloudinaryMediaProvider3 } = await Promise.resolve().then(() => (init_cloudinaryMediaProvider(), cloudinaryMediaProvider_exports));
-      return cloudinaryMediaProvider3;
+      const { CloudinaryMediaStore: CloudinaryMediaStore2 } = await Promise.resolve().then(() => (init_cloudinaryMediaProvider(), cloudinaryMediaProvider_exports));
+      return CloudinaryMediaStore2;
     }
   },
   build: {

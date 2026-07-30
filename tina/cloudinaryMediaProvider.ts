@@ -51,11 +51,12 @@ const readFileAsBase64 = (file: File) =>
     reader.readAsDataURL(file);
   });
 
-export const cloudinaryMediaProvider: MediaStore = {
-  accept: '*',
-  previewSrc(src: string) {
+export class CloudinaryMediaStore implements MediaStore {
+  accept = 'image/*';
+
+  async previewSrc(src: string) {
     return src;
-  },
+  }
 
   async persist(files: MediaUploadOptions[]) {
     const { cloudName, uploadPreset } = getCloudinaryConfig();
@@ -148,9 +149,9 @@ export const cloudinaryMediaProvider: MediaStore = {
 
     console.log(`✅ Successfully uploaded ${uploaded.length} file(s)`);
     return uploaded;
-  },
+  }
 
-  async list(options: MediaListOptions) {
+  async list(options?: MediaListOptions) {
     const { cloudName } = getCloudinaryConfig();
 
     if (!cloudName) {
@@ -175,7 +176,7 @@ export const cloudinaryMediaProvider: MediaStore = {
         hasNextPage: false,
       };
     }
-  },
+  }
 
   async delete(asset: string) {
     const { cloudName } = getCloudinaryConfig();
@@ -188,5 +189,7 @@ export const cloudinaryMediaProvider: MediaStore = {
     // Note: Deleting requires your Cloudinary API key (backend only)
     // For security, deletion should be handled via a backend endpoint
     console.warn('Deletion not implemented for client-side Cloudinary integration');
-  },
-};
+  }
+}
+
+export const cloudinaryMediaProvider = new CloudinaryMediaStore();

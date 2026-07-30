@@ -54,8 +54,8 @@ export default defineConfig({
 
   media: {
     loadCustomStore: async () => {
-      const { cloudinaryMediaProvider } = await import("./cloudinaryMediaProvider");
-      return cloudinaryMediaProvider;
+      const { CloudinaryMediaStore } = await import("./cloudinaryMediaProvider");
+      return CloudinaryMediaStore;
     },
   },
 
