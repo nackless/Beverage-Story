@@ -25,14 +25,14 @@ This guide helps you set up Cloudinary integration with TinaCMS for automatic im
 1. **For Local Development**: Create a `.env.local` file in your project root:
 
 ```bash
-PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
-PUBLIC_CLOUDINARY_UPLOAD_PRESET=my_blog_preset
+PUBLIC_CLOUDINARY_CLOUD_NAME=disd3nwm7
+PUBLIC_CLOUDINARY_UPLOAD_PRESET=bev-story-images
 ```
 
 2. **For Netlify Deployment**: In your Netlify Dashboard (Site configuration → Environment variables), add:
 ```bash
-PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
-PUBLIC_CLOUDINARY_UPLOAD_PRESET=my_blog_preset
+PUBLIC_CLOUDINARY_CLOUD_NAME=disd3nwm7
+PUBLIC_CLOUDINARY_UPLOAD_PRESET=bev-story-images
 ```
 *(Note: `VITE_CLOUDINARY_*` or `CLOUDINARY_*` are also supported).*
 
