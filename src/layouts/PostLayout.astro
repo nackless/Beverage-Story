@@ -12,14 +12,16 @@ const cloudinaryEnabled = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 let coverImageUrl: string | null = null;
 let imageAlt = frontmatter.title;
 
-if (frontmatter.image?.url && typeof frontmatter.image.url === 'string') {
-  const imageUrl = frontmatter.image.url;
-  imageAlt = frontmatter.image.alt || frontmatter.title;
+const rawImage = frontmatter.image;
+const imageUrl = typeof rawImage === 'string' ? rawImage : (rawImage && typeof rawImage.url === 'string' ? rawImage.url : undefined);
+
+if (imageUrl) {
+  imageAlt = (typeof rawImage === 'object' && rawImage?.alt) || frontmatter.title;
   
   // Check if image is from Cloudinary
   if (imageUrl.includes('cloudinary.com')) {
     // Add transformations to Cloudinary URL for optimization
-    const width = frontmatter.image?.width || 800;
+    const width = (typeof rawImage === 'object' && rawImage?.width) || 800;
     // Insert transformations before the filename
     const parts = imageUrl.split('/upload/');
     if (parts.length === 2) {
@@ -32,11 +34,17 @@ if (frontmatter.image?.url && typeof frontmatter.image.url === 'string') {
   } else if (imageUrl.startsWith('/uploads/')) {
     // Local uploads (no optimization)
     coverImageUrl = imageUrl;
+  } else {
+    coverImageUrl = imageUrl;
   }
 }
 ---
 
-<BaseLayout pageTitle={frontmatter.title}>
+<BaseLayout 
+  pageTitle={frontmatter.title} 
+  description={frontmatter.description} 
+  image={coverImageUrl || undefined}
+>
   <h1 class="blog-title">{frontmatter.title}</h1>
 
   <p class="date">{dateFormat(frontmatter.pubDate)}</p>
