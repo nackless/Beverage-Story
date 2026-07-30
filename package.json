@@ -6,7 +6,7 @@
     "dev": "node ./scripts/run-tina-dev.mjs",
     "start": "node ./scripts/run-tina-dev.mjs",
     "dev:astro": "astro dev --host 0.0.0.0",
-    "build": "tinacms build && astro build",
+    "build": "node ./scripts/run-tina-build.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

@@ -8,9 +8,21 @@ const slugify = (str: string) => {
 
 // Your hosting provider likely exposes this as an environment variable
 const branch =
-  // process.env.GITHUB_BRANCH ||
-  // process.env.VERCEL_GIT_COMMIT_REF ||
-  process.env.HEAD || "main";
+  process.env.GITHUB_BRANCH ||
+  process.env.VERCEL_GIT_COMMIT_REF ||
+  process.env.HEAD ||
+  "main";
+
+const clientId =
+  process.env.TINA_PUBLIC_CLIENT_ID ||
+  process.env.TINA_CLIENT_ID ||
+  process.env.NEXT_PUBLIC_TINA_CLIENT_ID ||
+  "1efb06e9-53f1-4452-bb54-a224ec8ecc1a";
+
+const token =
+  process.env.TINA_TOKEN ||
+  process.env.TINA_CLOUD_TOKEN ||
+  process.env.TINA_CLOUD_READONLY_TOKEN;
 
 // Cloudinary setup
 const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
@@ -19,10 +31,8 @@ const useCloudinary = !!(cloudName && uploadPreset);
 
 export default defineConfig({
   branch,
-
-  
-  clientId: "1efb06e9-53f1-4452-bb54-a224ec8ecc1a", // Get this from tina.io
-  token: process.env.TINA_TOKEN, // Get this from tina.io
+  clientId,
+  token,
 
   media: useCloudinary
     ? {
