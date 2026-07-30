@@ -182,7 +182,7 @@ export type Post = Node & Document & {
   description: Scalars['String']['output'];
   pubDate: Scalars['String']['output'];
   author: Scalars['String']['output'];
-  slug: Scalars['String']['output'];
+  slug?: Maybe<Scalars['String']['output']>;
   tags?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   image?: Maybe<PostImage>;
   body?: Maybe<Scalars['JSON']['output']>;
@@ -353,14 +353,14 @@ export type PostMutation = {
   body?: InputMaybe<Scalars['JSON']['input']>;
 };
 
-export type PostPartsFragment = { __typename: 'Post', title: string, description: string, pubDate: string, author: string, slug: string, tags?: Array<string | null> | null, body?: any | null, image?: { __typename: 'PostImage', url?: string | null, alt?: string | null, caption?: string | null, width?: number | null, height?: number | null, borderRadius?: number | null, alignment?: string | null } | null };
+export type PostPartsFragment = { __typename: 'Post', title: string, description: string, pubDate: string, author: string, slug?: string | null, tags?: Array<string | null> | null, body?: any | null, image?: { __typename: 'PostImage', url?: string | null, alt?: string | null, caption?: string | null, width?: number | null, height?: number | null, borderRadius?: number | null, alignment?: string | null } | null };
 
 export type PostQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
 }>;
 
 
-export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, description: string, pubDate: string, author: string, slug: string, tags?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, image?: { __typename: 'PostImage', url?: string | null, alt?: string | null, caption?: string | null, width?: number | null, height?: number | null, borderRadius?: number | null, alignment?: string | null } | null } };
+export type PostQuery = { __typename?: 'Query', post: { __typename: 'Post', id: string, title: string, description: string, pubDate: string, author: string, slug?: string | null, tags?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, image?: { __typename: 'PostImage', url?: string | null, alt?: string | null, caption?: string | null, width?: number | null, height?: number | null, borderRadius?: number | null, alignment?: string | null } | null } };
 
 export type PostConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -372,7 +372,7 @@ export type PostConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, description: string, pubDate: string, author: string, slug: string, tags?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, image?: { __typename: 'PostImage', url?: string | null, alt?: string | null, caption?: string | null, width?: number | null, height?: number | null, borderRadius?: number | null, alignment?: string | null } | null } | null } | null> | null } };
+export type PostConnectionQuery = { __typename?: 'Query', postConnection: { __typename?: 'PostConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PostConnectionEdges', cursor: string, node?: { __typename: 'Post', id: string, title: string, description: string, pubDate: string, author: string, slug?: string | null, tags?: Array<string | null> | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string }, image?: { __typename: 'PostImage', url?: string | null, alt?: string | null, caption?: string | null, width?: number | null, height?: number | null, borderRadius?: number | null, alignment?: string | null } | null } | null } | null> | null } };
 
 export const PostPartsFragmentDoc = gql`
     fragment PostParts on Post {

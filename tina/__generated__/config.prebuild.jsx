@@ -1,98 +1,186 @@
-// tina/config.ts
-import { defineConfig } from "tinacms";
+var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 
 // tina/cloudinaryMediaProvider.ts
-var cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
-var uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;
-var cloudinaryMediaProvider = {
-  async persist(files) {
-    if (!cloudName || !uploadPreset) {
-      const error = `Cloudinary credentials missing. Cloud Name: ${!cloudName ? "\u274C" : "\u2705"}, Preset: ${!uploadPreset ? "\u274C" : "\u2705"}`;
-      console.error("\u274C " + error);
-      throw new Error(error);
-    }
-    console.log(`\u{1F4E4} Uploading ${files.length} file(s) to Cloudinary...`);
-    const uploaded = [];
-    for (const file of files) {
-      const formData = new FormData();
-      formData.append("file", file.file);
-      formData.append("upload_preset", uploadPreset);
-      formData.append("folder", "tina-cms");
-      try {
-        const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
-        console.log(`  \u{1F4E4} Uploading: ${file.file.name} to ${url}`);
-        const response = await fetch(url, {
-          method: "POST",
-          body: formData
-        });
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Upload failed (${response.status}): ${errorText}`);
+var cloudinaryMediaProvider_exports = {};
+__export(cloudinaryMediaProvider_exports, {
+  cloudinaryMediaProvider: () => cloudinaryMediaProvider
+});
+var getEnvValue, getCloudinaryConfig, readFileAsBase64, cloudinaryMediaProvider;
+var init_cloudinaryMediaProvider = __esm({
+  "tina/cloudinaryMediaProvider.ts"() {
+    "use strict";
+    getEnvValue = (name) => {
+      const runtimeEnv = typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
+      const processEnv = typeof process !== "undefined" ? process.env : {};
+      return runtimeEnv[`PUBLIC_${name}`] || runtimeEnv[`VITE_${name}`] || runtimeEnv[name] || processEnv[`PUBLIC_${name}`] || processEnv[`VITE_${name}`] || processEnv[name];
+    };
+    getCloudinaryConfig = () => ({
+      cloudName: getEnvValue("CLOUDINARY_CLOUD_NAME") || getEnvValue("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue("VITE_CLOUDINARY_CLOUD_NAME"),
+      uploadPreset: getEnvValue("CLOUDINARY_UPLOAD_PRESET") || getEnvValue("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("VITE_CLOUDINARY_UPLOAD_PRESET")
+    });
+    readFileAsBase64 = (file) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === "string") {
+          const base64 = result.split(",")[1];
+          resolve(base64);
+        } else {
+          reject(new Error("Failed to read file"));
         }
-        const data = await response.json();
-        console.log(`  \u2705 Uploaded: ${file.file.name} \u2192 ${data.secure_url}`);
-        uploaded.push({
-          directory: file.directory,
-          file: {
-            name: file.file.name,
-            // Use the secure_url from Cloudinary
-            url: data.secure_url
+      };
+      reader.onerror = () => reject(reader.error || new Error("Failed to read file"));
+      reader.readAsDataURL(file);
+    });
+    cloudinaryMediaProvider = {
+      accept: "*",
+      previewSrc(src) {
+        return src;
+      },
+      async persist(files) {
+        const { cloudName: cloudName2, uploadPreset: uploadPreset2 } = getCloudinaryConfig();
+        if (!cloudName2 || !uploadPreset2) {
+          const error = `Cloudinary credentials missing. Cloud Name: ${!cloudName2 ? "\u274C" : "\u2705"}, Preset: ${!uploadPreset2 ? "\u274C" : "\u2705"}`;
+          console.error("\u274C " + error);
+          throw new Error(error);
+        }
+        console.log(`\u{1F4E4} Uploading ${files.length} file(s) to Cloudinary...`);
+        const uploaded = [];
+        const uploadDirectly = async (file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("upload_preset", uploadPreset2);
+          formData.append("folder", "tina-cms");
+          const url = `https://api.cloudinary.com/v1_1/${cloudName2}/auto/upload`;
+          console.log(`  \u{1F4E4} Uploading directly: ${file.name} to ${url}`);
+          const response = await fetch(url, {
+            method: "POST",
+            body: formData
+          });
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Direct upload failed (${response.status}): ${errorText}`);
           }
-        });
-      } catch (error) {
-        console.error("\u274C Cloudinary upload error:", error);
-        throw error;
+          return await response.json();
+        };
+        for (const file of files) {
+          const endpoint = typeof window !== "undefined" && window.location.hostname !== "localhost" ? `${window.location.origin}/.netlify/functions/cloudinary-upload` : void 0;
+          try {
+            let data;
+            if (endpoint) {
+              try {
+                const fileData = await readFileAsBase64(file.file);
+                const response = await fetch(endpoint, {
+                  method: "POST",
+                  headers: {
+                    "content-type": "application/json"
+                  },
+                  body: JSON.stringify({
+                    fileName: file.file.name,
+                    fileType: file.file.type,
+                    fileData,
+                    uploadPreset: uploadPreset2,
+                    cloudName: cloudName2,
+                    folder: "tina-cms"
+                  })
+                });
+                if (response.ok) {
+                  data = await response.json();
+                } else {
+                  console.warn(`Netlify function returned status ${response.status}. Falling back to direct Cloudinary upload...`);
+                  data = await uploadDirectly(file.file);
+                }
+              } catch (funcErr) {
+                console.warn("Netlify function upload error, falling back to direct upload:", funcErr);
+                data = await uploadDirectly(file.file);
+              }
+            } else {
+              data = await uploadDirectly(file.file);
+            }
+            console.log(`  \u2705 Uploaded: ${file.file.name} \u2192 ${data.secure_url}`);
+            uploaded.push({
+              directory: file.directory,
+              file: {
+                name: file.file.name,
+                url: data.secure_url
+              }
+            });
+          } catch (error) {
+            console.error("\u274C Cloudinary upload error:", error);
+            throw error;
+          }
+        }
+        console.log(`\u2705 Successfully uploaded ${uploaded.length} file(s)`);
+        return uploaded;
+      },
+      async list(options) {
+        const { cloudName: cloudName2 } = getCloudinaryConfig();
+        if (!cloudName2) {
+          console.error("Cloudinary Cloud Name not configured");
+          throw new Error("Cloudinary Cloud Name not configured");
+        }
+        try {
+          return {
+            items: [],
+            directories: [],
+            hasNextPage: false
+          };
+        } catch (error) {
+          console.error("Cloudinary list error:", error);
+          return {
+            items: [],
+            directories: [],
+            hasNextPage: false
+          };
+        }
+      },
+      async delete(asset) {
+        const { cloudName: cloudName2 } = getCloudinaryConfig();
+        if (!cloudName2) {
+          console.error("Cloudinary Cloud Name not configured");
+          throw new Error("Cloudinary Cloud Name not configured");
+        }
+        console.warn("Deletion not implemented for client-side Cloudinary integration");
       }
-    }
-    console.log(`\u2705 Successfully uploaded ${uploaded.length} file(s)`);
-    return uploaded;
-  },
-  async list(options) {
-    if (!cloudName) {
-      console.error("Cloudinary Cloud Name not configured");
-      throw new Error("Cloudinary Cloud Name not configured");
-    }
-    try {
-      return {
-        items: [],
-        directories: [],
-        hasNextPage: false
-      };
-    } catch (error) {
-      console.error("Cloudinary list error:", error);
-      return {
-        items: [],
-        directories: [],
-        hasNextPage: false
-      };
-    }
-  },
-  async delete(asset) {
-    if (!cloudName) {
-      console.error("Cloudinary Cloud Name not configured");
-      throw new Error("Cloudinary Cloud Name not configured");
-    }
-    console.warn("Deletion not implemented for client-side Cloudinary integration");
+    };
   }
-};
+});
 
 // tina/config.ts
+init_cloudinaryMediaProvider();
+import { defineConfig } from "tinacms";
 var slugify = (str) => {
-  const s = str.toLowerCase().trim().replace(/ /g, "-").replace(/[-]+/g, "-").replace(/[^\w-]+/g, "");
-  return s;
+  if (!str || typeof str !== "string") return "";
+  return str.toLowerCase().trim().replace(/ /g, "-").replace(/[-]+/g, "-").replace(/[^\w-]+/g, "");
+};
+var getEnvValue2 = (name) => {
+  const runtimeEnv = typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
+  const processEnv = typeof process !== "undefined" ? process.env : {};
+  return runtimeEnv[name] || runtimeEnv[`PUBLIC_${name}`] || runtimeEnv[`VITE_${name}`] || processEnv[name] || processEnv[`PUBLIC_${name}`] || processEnv[`VITE_${name}`];
 };
 var branch = process.env.GITHUB_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.HEAD || "main";
-var clientId = process.env.TINA_PUBLIC_CLIENT_ID || process.env.TINA_CLIENT_ID || process.env.NEXT_PUBLIC_TINA_CLIENT_ID || "1efb06e9-53f1-4452-bb54-a224ec8ecc1a";
-var token = process.env.TINA_TOKEN || process.env.TINA_CLOUD_TOKEN || process.env.TINA_CLOUD_READONLY_TOKEN;
-var cloudName2 = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
-var uploadPreset2 = process.env.VITE_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;
-var useCloudinary = !!(cloudName2 && uploadPreset2);
+var clientId = getEnvValue2("PUBLIC_TINA_CLIENT_ID") || getEnvValue2("TINA_PUBLIC_CLIENT_ID") || getEnvValue2("TINA_CLIENT_ID") || getEnvValue2("NEXT_PUBLIC_TINA_CLIENT_ID") || "1efb06e9-53f1-4452-bb54-a224ec8ecc1a";
+var token = getEnvValue2("TINA_TOKEN") || getEnvValue2("TINA_CLOUD_TOKEN") || getEnvValue2("TINA_CLOUD_READONLY_TOKEN");
+var cloudName = getEnvValue2("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue2("VITE_CLOUDINARY_CLOUD_NAME") || getEnvValue2("CLOUDINARY_CLOUD_NAME");
+var uploadPreset = getEnvValue2("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue2("VITE_CLOUDINARY_UPLOAD_PRESET") || getEnvValue2("CLOUDINARY_UPLOAD_PRESET");
+var useCloudinary = !!(cloudName && uploadPreset);
 var config_default = defineConfig({
   branch,
   clientId,
   token,
   media: useCloudinary ? {
-    provider: cloudinaryMediaProvider
+    loadCustomStore: async () => {
+      const { cloudinaryMediaProvider: cloudinaryMediaProvider3 } = await Promise.resolve().then(() => (init_cloudinaryMediaProvider(), cloudinaryMediaProvider_exports));
+      return cloudinaryMediaProvider3;
+    }
   } : {
     tina: {
       mediaRoot: "uploads",
@@ -114,14 +202,20 @@ var config_default = defineConfig({
           filename: {
             readonly: true,
             slugify: (values) => {
-              return slugify(values.title);
+              return slugify(values?.title) || "new-post";
             }
+          },
+          beforeSubmit: async ({ values }) => {
+            return {
+              ...values,
+              slug: values?.slug ? slugify(values.slug) : slugify(values?.title) || "new-post"
+            };
           }
         },
         defaultItem: () => ({
           title: "New Post",
+          slug: "new-post",
           author: "analytical bull"
-          // layout: "../../layouts/PostLayout.astro",
         }),
         fields: [
           // {
@@ -160,7 +254,8 @@ var config_default = defineConfig({
             type: "string",
             name: "slug",
             label: "Slug",
-            required: true
+            description: "Auto-generated from Title if left empty",
+            required: false
           },
           {
             type: "string",

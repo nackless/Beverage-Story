@@ -107,7 +107,6 @@ export default defineConfig({
           title: "New Post",
           slug: "new-post",
           author: "analytical bull",
-          pubDate: new Date().toISOString(),
         }),
         fields: [
           // {

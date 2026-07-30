@@ -102,7 +102,7 @@ type Post implements Node & Document {
   description: String!
   pubDate: String!
   author: String!
-  slug: String!
+  slug: String
   tags: [String]
   image: PostImage
   body: JSON
