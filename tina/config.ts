@@ -71,6 +71,9 @@ export default defineConfig({
         label: "Posts",
         path: "src/content/posts",
         ui: {
+          itemProps: (item) => {
+            return { label: item?.title || item?.name || 'Post' };
+          },
           filename: {
             readonly: true,
             slugify: (values) => {
@@ -78,6 +81,7 @@ export default defineConfig({
             },
           },
           beforeSubmit: async ({ values }) => {
+            if (!values) return {};
             const titleSlug = slugify(values?.title);
             return {
               ...values,
@@ -242,6 +246,9 @@ export default defineConfig({
                 name: "Image",
                 label: "Image",
                 ui: {
+                  itemProps: (item) => {
+                    return { label: item?.alt || item?.caption || 'Image' };
+                  },
                   defaultItem: {
                     caption: "Image caption",
                   },

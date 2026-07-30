@@ -174,6 +174,9 @@ var config_default = defineConfig({
         label: "Posts",
         path: "src/content/posts",
         ui: {
+          itemProps: (item) => {
+            return { label: item?.title || item?.name || "Post" };
+          },
           filename: {
             readonly: true,
             slugify: (values) => {
@@ -181,6 +184,7 @@ var config_default = defineConfig({
             }
           },
           beforeSubmit: async ({ values }) => {
+            if (!values) return {};
             const titleSlug = slugify(values?.title);
             return {
               ...values,
@@ -343,6 +347,9 @@ var config_default = defineConfig({
                 name: "Image",
                 label: "Image",
                 ui: {
+                  itemProps: (item) => {
+                    return { label: item?.alt || item?.caption || "Image" };
+                  },
                   defaultItem: {
                     caption: "Image caption"
                   }
