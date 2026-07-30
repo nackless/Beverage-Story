@@ -16,5 +16,7 @@ image:
   alignment: center
 ---
 
-Ok, this is finallu the cure. I have done what i wanted. now I need to be able to fall back to this every time I have a problem. will for this and then do more and come back to this if things break.
+Ok, this is finallu the cure. I have done what i wanted. now I need to be able to fall back to this every time I have a problem. will for this and then 
+
+![right, how to centre this](https://res.cloudinary.com/disd3nwm7/image/upload/v1785450430/x0ahsupyi81ri93dgrrb.jpg "No idea")do more and come back to this if things break.
 
