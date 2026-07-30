@@ -28,11 +28,13 @@ const getCloudinaryConfig = () => ({
   cloudName:
     getEnvValue('PUBLIC_CLOUDINARY_CLOUD_NAME') ||
     getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') ||
-    getEnvValue('CLOUDINARY_CLOUD_NAME'),
+    getEnvValue('CLOUDINARY_CLOUD_NAME') ||
+    'disd3nwm7',
   uploadPreset:
     getEnvValue('PUBLIC_CLOUDINARY_UPLOAD_PRESET') ||
     getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET') ||
-    getEnvValue('CLOUDINARY_UPLOAD_PRESET'),
+    getEnvValue('CLOUDINARY_UPLOAD_PRESET') ||
+    'bev-story-images',
 });
 
 const readFileAsBase64 = (file: File) =>

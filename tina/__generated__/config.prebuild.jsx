@@ -32,8 +32,8 @@ var init_cloudinaryMediaProvider = __esm({
       return runtimeEnv[name] || runtimeEnv[`PUBLIC_${name}`] || runtimeEnv[`VITE_${name}`] || processEnv[name] || processEnv[`PUBLIC_${name}`] || processEnv[`VITE_${name}`];
     };
     getCloudinaryConfig = () => ({
-      cloudName: getEnvValue("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue("VITE_CLOUDINARY_CLOUD_NAME") || getEnvValue("CLOUDINARY_CLOUD_NAME"),
-      uploadPreset: getEnvValue("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("VITE_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("CLOUDINARY_UPLOAD_PRESET")
+      cloudName: getEnvValue("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue("VITE_CLOUDINARY_CLOUD_NAME") || getEnvValue("CLOUDINARY_CLOUD_NAME") || "disd3nwm7",
+      uploadPreset: getEnvValue("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("VITE_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("CLOUDINARY_UPLOAD_PRESET") || "bev-story-images"
     });
     readFileAsBase64 = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
