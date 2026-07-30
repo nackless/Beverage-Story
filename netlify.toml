@@ -1,6 +1,17 @@
 [build]
   command = "npm ci && npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/api/cloudinary-list"
+  to = "/.netlify/functions/cloudinary-list"
+  status = 200
+
+[[redirects]]
+  from = "/api/cloudinary-upload"
+  to = "/.netlify/functions/cloudinary-upload"
+  status = 200
