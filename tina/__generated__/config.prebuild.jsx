@@ -16,7 +16,7 @@ __export(cloudinaryMediaProvider_exports, {
   CloudinaryMediaStore: () => CloudinaryMediaStore,
   cloudinaryMediaProvider: () => cloudinaryMediaProvider
 });
-var getEnvValue, getCloudinaryConfig, readFileAsBase64, CloudinaryMediaStore, cloudinaryMediaProvider;
+var getEnvValue, getCloudinaryConfig, CloudinaryMediaStore, cloudinaryMediaProvider;
 var init_cloudinaryMediaProvider = __esm({
   "tina/cloudinaryMediaProvider.ts"() {
     "use strict";
@@ -34,20 +34,6 @@ var init_cloudinaryMediaProvider = __esm({
     getCloudinaryConfig = () => ({
       cloudName: getEnvValue("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue("VITE_CLOUDINARY_CLOUD_NAME") || getEnvValue("CLOUDINARY_CLOUD_NAME") || "disd3nwm7",
       uploadPreset: getEnvValue("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("VITE_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("CLOUDINARY_UPLOAD_PRESET") || "bev-story-images"
-    });
-    readFileAsBase64 = (file) => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result;
-        if (typeof result === "string") {
-          const base64 = result.split(",")[1];
-          resolve(base64);
-        } else {
-          reject(new Error("Failed to read file"));
-        }
-      };
-      reader.onerror = () => reject(reader.error || new Error("Failed to read file"));
-      reader.readAsDataURL(file);
     });
     CloudinaryMediaStore = class {
       constructor() {
@@ -90,39 +76,8 @@ var init_cloudinaryMediaProvider = __esm({
           return await response.json();
         };
         for (const file of files) {
-          const endpoint = typeof window !== "undefined" && window.location.hostname !== "localhost" ? `${window.location.origin}/.netlify/functions/cloudinary-upload` : void 0;
           try {
-            let data;
-            if (endpoint) {
-              try {
-                const fileData = await readFileAsBase64(file.file);
-                const response = await fetch(endpoint, {
-                  method: "POST",
-                  headers: {
-                    "content-type": "application/json"
-                  },
-                  body: JSON.stringify({
-                    fileName: file.file.name,
-                    fileType: file.file.type,
-                    fileData,
-                    uploadPreset,
-                    cloudName,
-                    folder: "tina-cms"
-                  })
-                });
-                if (response.ok) {
-                  data = await response.json();
-                } else {
-                  console.warn(`Netlify function returned status ${response.status}. Falling back to direct Cloudinary upload...`);
-                  data = await uploadDirectly(file.file);
-                }
-              } catch (funcErr) {
-                console.warn("Netlify function upload error, falling back to direct upload:", funcErr);
-                data = await uploadDirectly(file.file);
-              }
-            } else {
-              data = await uploadDirectly(file.file);
-            }
+            const data = await uploadDirectly(file.file);
             console.log(`  \u2705 Uploaded: ${file.file.name} \u2192 ${data.secure_url}`);
             uploaded.push({
               directory: file.directory,

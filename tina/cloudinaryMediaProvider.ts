@@ -103,45 +103,8 @@ export class CloudinaryMediaStore implements MediaStore {
     };
 
     for (const file of files) {
-      const endpoint = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-        ? `${window.location.origin}/.netlify/functions/cloudinary-upload`
-        : undefined;
-
       try {
-        let data: any;
-
-        if (endpoint) {
-          try {
-            const fileData = await readFileAsBase64(file.file);
-            const response = await fetch(endpoint, {
-              method: 'POST',
-              headers: {
-                'content-type': 'application/json',
-              },
-              body: JSON.stringify({
-                fileName: file.file.name,
-                fileType: file.file.type,
-                fileData,
-                uploadPreset,
-                cloudName,
-                folder: 'tina-cms',
-              }),
-            });
-
-            if (response.ok) {
-              data = await response.json();
-            } else {
-              console.warn(`Netlify function returned status ${response.status}. Falling back to direct Cloudinary upload...`);
-              data = await uploadDirectly(file.file);
-            }
-          } catch (funcErr) {
-            console.warn('Netlify function upload error, falling back to direct upload:', funcErr);
-            data = await uploadDirectly(file.file);
-          }
-        } else {
-          data = await uploadDirectly(file.file);
-        }
-
+        const data = await uploadDirectly(file.file);
         console.log(`  ✅ Uploaded: ${file.file.name} → ${data.secure_url}`);
 
         uploaded.push({
