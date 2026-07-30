@@ -122,6 +122,33 @@ var init_cloudinaryMediaProvider = __esm({
         return uploaded;
       }
       async list(options) {
+        try {
+          const response = await fetch("/.netlify/functions/cloudinary-list");
+          if (response.ok) {
+            const data = await response.json();
+            if (Array.isArray(data.resources) && data.resources.length > 0) {
+              const fetchedItems = data.resources.map((res) => ({
+                id: res.public_id,
+                type: "file",
+                filename: `${res.public_id}.${res.format}`,
+                directory: "",
+                src: res.secure_url
+              }));
+              const combined = [...this.sessionItems];
+              for (const item of fetchedItems) {
+                if (!combined.some((i) => i.src === item.src)) {
+                  combined.push(item);
+                }
+              }
+              return {
+                items: combined,
+                nextOffset: null
+              };
+            }
+          }
+        } catch (e) {
+          console.warn("\u26A0\uFE0F Unable to fetch server Cloudinary list, using session items:", e);
+        }
         return {
           items: this.sessionItems,
           nextOffset: null

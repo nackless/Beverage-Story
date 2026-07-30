@@ -162,6 +162,35 @@ export class CloudinaryMediaStore implements MediaStore {
   }
 
   async list(options?: MediaListOptions) {
+    try {
+      const response = await fetch('/.netlify/functions/cloudinary-list');
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data.resources) && data.resources.length > 0) {
+          const fetchedItems: Media[] = data.resources.map((res: any) => ({
+            id: res.public_id,
+            type: 'file',
+            filename: `${res.public_id}.${res.format}`,
+            directory: '',
+            src: res.secure_url,
+          }));
+
+          const combined = [...this.sessionItems];
+          for (const item of fetchedItems) {
+            if (!combined.some((i) => i.src === item.src)) {
+              combined.push(item);
+            }
+          }
+          return {
+            items: combined,
+            nextOffset: null,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ Unable to fetch server Cloudinary list, using session items:', e);
+    }
+
     return {
       items: this.sessionItems,
       nextOffset: null,
