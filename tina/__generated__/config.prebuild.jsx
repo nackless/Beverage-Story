@@ -48,22 +48,14 @@ var init_cloudinaryMediaProvider = __esm({
         if (!raw) return [];
         const items = JSON.parse(raw);
         if (!Array.isArray(items)) return [];
-        return items.filter((item) => item && (item.src || item.filename || item.id)).map((item) => {
-          const filename = item.filename || item.id || "image.jpg";
-          let src = item.src || item.previewSrc || item.url || item.id || "";
-          if (typeof src !== "string" || !src.startsWith("http://") && !src.startsWith("https://") && !src.startsWith("data:")) {
-            const cleanName = typeof src === "string" && src ? src : filename;
-            src = `https://res.cloudinary.com/disd3nwm7/image/upload/${cleanName}`;
-          }
-          return {
-            id: src,
-            type: "file",
-            filename,
-            directory: "",
-            src,
-            previewSrc: src
-          };
-        });
+        return items.filter((item) => item && typeof item.src === "string" && (item.src.startsWith("http://") || item.src.startsWith("https://") || item.src.startsWith("data:"))).map((item) => ({
+          id: item.src,
+          type: "file",
+          filename: item.filename || item.src.split("/").pop() || "image.jpg",
+          directory: "",
+          src: item.src,
+          previewSrc: item.src
+        }));
       } catch {
         return [];
       }
@@ -71,7 +63,8 @@ var init_cloudinaryMediaProvider = __esm({
     saveStoredMedia = (items) => {
       if (typeof window === "undefined") return;
       try {
-        localStorage.setItem("tina_cloudinary_media_items", JSON.stringify(items.slice(0, 100)));
+        const validItems = items.filter((i) => i && typeof i.src === "string" && (i.src.startsWith("http://") || i.src.startsWith("https://") || i.src.startsWith("data:")));
+        localStorage.setItem("tina_cloudinary_media_items", JSON.stringify(validItems.slice(0, 100)));
       } catch {
       }
     };
@@ -94,9 +87,6 @@ var init_cloudinaryMediaProvider = __esm({
         const match = stored.find((i) => i.id === urlString || i.filename === urlString || i.src && i.src.includes(urlString));
         if (match && match.src) {
           return match.previewSrc || match.src;
-        }
-        if (typeof urlString === "string" && urlString.length > 0) {
-          return `https://res.cloudinary.com/disd3nwm7/image/upload/${urlString}`;
         }
         return urlString;
       }

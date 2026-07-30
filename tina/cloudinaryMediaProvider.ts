@@ -70,25 +70,15 @@ const getStoredMedia = (): Media[] => {
     if (!Array.isArray(items)) return [];
 
     return items
-      .filter((item: any) => item && (item.src || item.filename || item.id))
-      .map((item: any) => {
-        const filename = item.filename || item.id || 'image.jpg';
-        let src = item.src || item.previewSrc || item.url || item.id || '';
-
-        if (typeof src !== 'string' || (!src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('data:'))) {
-          const cleanName = typeof src === 'string' && src ? src : filename;
-          src = `https://res.cloudinary.com/disd3nwm7/image/upload/${cleanName}`;
-        }
-
-        return {
-          id: src,
-          type: 'file' as const,
-          filename: filename,
-          directory: '',
-          src: src,
-          previewSrc: src,
-        };
-      });
+      .filter((item: any) => item && typeof item.src === 'string' && (item.src.startsWith('http://') || item.src.startsWith('https://') || item.src.startsWith('data:')))
+      .map((item: any) => ({
+        id: item.src,
+        type: 'file' as const,
+        filename: item.filename || item.src.split('/').pop() || 'image.jpg',
+        directory: '',
+        src: item.src,
+        previewSrc: item.src,
+      }));
   } catch {
     return [];
   }
@@ -97,7 +87,8 @@ const getStoredMedia = (): Media[] => {
 const saveStoredMedia = (items: Media[]) => {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem('tina_cloudinary_media_items', JSON.stringify(items.slice(0, 100)));
+    const validItems = items.filter((i) => i && typeof i.src === 'string' && (i.src.startsWith('http://') || i.src.startsWith('https://') || i.src.startsWith('data:')));
+    localStorage.setItem('tina_cloudinary_media_items', JSON.stringify(validItems.slice(0, 100)));
   } catch {
     // Ignore storage errors
   }
@@ -124,10 +115,6 @@ export class CloudinaryMediaStore implements MediaStore {
     const match = stored.find((i) => i.id === urlString || i.filename === urlString || (i.src && i.src.includes(urlString)));
     if (match && match.src) {
       return match.previewSrc || match.src;
-    }
-
-    if (typeof urlString === 'string' && urlString.length > 0) {
-      return `https://res.cloudinary.com/disd3nwm7/image/upload/${urlString}`;
     }
 
     return urlString;
