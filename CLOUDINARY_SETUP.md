@@ -22,25 +22,32 @@ This guide helps you set up Cloudinary integration with TinaCMS for automatic im
 
 ## Step 3: Add Environment Variables
 
-1. Create a `.env.local` file in your project root (copy from `.env.example`):
+1. **For Local Development**: Create a `.env.local` file in your project root:
 
 ```bash
-VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
-VITE_CLOUDINARY_UPLOAD_PRESET=my_blog_preset
+PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+PUBLIC_CLOUDINARY_UPLOAD_PRESET=my_blog_preset
 ```
+
+2. **For Netlify Deployment**: In your Netlify Dashboard (Site configuration → Environment variables), add:
+```bash
+PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+PUBLIC_CLOUDINARY_UPLOAD_PRESET=my_blog_preset
+```
+*(Note: `VITE_CLOUDINARY_*` or `CLOUDINARY_*` are also supported).*
 
 Replace:
 - `your_cloud_name` with your Cloudinary Cloud Name
-- `my_blog_preset` with the upload preset name you created
+- `my_blog_preset` with the unsigned upload preset name you created
 
 ## Step 4: Enable Cloudinary in TinaCMS (Full Integration)
 
 Now that everything is set up, Cloudinary will automatically be used when you have the environment variables configured!
 
-1. **Verify your `.env.local` file** is set up with:
+1. **Verify your `.env.local` file (or Netlify env variables)** is set up with:
    ```bash
-   VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
-   VITE_CLOUDINARY_UPLOAD_PRESET=your_preset_name
+   PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+   PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_preset_name
    ```
 
 2. **Restart your dev server**:

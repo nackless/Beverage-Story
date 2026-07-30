@@ -29,12 +29,25 @@ const getEnvValue = (name: string) => {
     ? (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
     : {};
 
-  return runtimeEnv[name] || process.env[name];
+  return (
+    runtimeEnv[`PUBLIC_${name}`] ||
+    runtimeEnv[`VITE_${name}`] ||
+    runtimeEnv[name] ||
+    process.env[`PUBLIC_${name}`] ||
+    process.env[`VITE_${name}`] ||
+    process.env[name]
+  );
 };
 
 // Cloudinary setup
-const cloudName = getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') || getEnvValue('CLOUDINARY_CLOUD_NAME');
-const uploadPreset = getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET') || getEnvValue('CLOUDINARY_UPLOAD_PRESET');
+const cloudName =
+  getEnvValue('CLOUDINARY_CLOUD_NAME') ||
+  getEnvValue('PUBLIC_CLOUDINARY_CLOUD_NAME') ||
+  getEnvValue('VITE_CLOUDINARY_CLOUD_NAME');
+const uploadPreset =
+  getEnvValue('CLOUDINARY_UPLOAD_PRESET') ||
+  getEnvValue('PUBLIC_CLOUDINARY_UPLOAD_PRESET') ||
+  getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET');
 const useCloudinary = !!(cloudName && uploadPreset);
 
 export default defineConfig({
@@ -44,7 +57,7 @@ export default defineConfig({
 
   media: useCloudinary
     ? {
-        provider: cloudinaryMediaProvider,
+        load: async () => cloudinaryMediaProvider,
       }
     : {
         tina: {

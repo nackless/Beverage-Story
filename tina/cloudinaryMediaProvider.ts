@@ -5,12 +5,27 @@ const getEnvValue = (name: string) => {
     ? (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
     : {};
 
-  return runtimeEnv[name] || (typeof process !== 'undefined' ? process.env?.[name] : undefined);
+  const processEnv = typeof process !== 'undefined' ? process.env : {};
+
+  return (
+    runtimeEnv[`PUBLIC_${name}`] ||
+    runtimeEnv[`VITE_${name}`] ||
+    runtimeEnv[name] ||
+    processEnv[`PUBLIC_${name}`] ||
+    processEnv[`VITE_${name}`] ||
+    processEnv[name]
+  );
 };
 
 const getCloudinaryConfig = () => ({
-  cloudName: getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') || getEnvValue('CLOUDINARY_CLOUD_NAME'),
-  uploadPreset: getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET') || getEnvValue('CLOUDINARY_UPLOAD_PRESET'),
+  cloudName:
+    getEnvValue('CLOUDINARY_CLOUD_NAME') ||
+    getEnvValue('PUBLIC_CLOUDINARY_CLOUD_NAME') ||
+    getEnvValue('VITE_CLOUDINARY_CLOUD_NAME'),
+  uploadPreset:
+    getEnvValue('CLOUDINARY_UPLOAD_PRESET') ||
+    getEnvValue('PUBLIC_CLOUDINARY_UPLOAD_PRESET') ||
+    getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET'),
 });
 
 const readFileAsBase64 = (file: File) =>
@@ -42,6 +57,28 @@ export const cloudinaryMediaProvider: MediaStore = {
     console.log(`📤 Uploading ${files.length} file(s) to Cloudinary...`);
     const uploaded = [];
 
+    const uploadDirectly = async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', uploadPreset!);
+      formData.append('folder', 'tina-cms');
+
+      const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+      console.log(`  📤 Uploading directly: ${file.name} to ${url}`);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Direct upload failed (${response.status}): ${errorText}`);
+      }
+
+      return await response.json();
+    };
+
     for (const file of files) {
       const endpoint = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
         ? `${window.location.origin}/.netlify/functions/cloudinary-upload`
@@ -51,48 +88,35 @@ export const cloudinaryMediaProvider: MediaStore = {
         let data: any;
 
         if (endpoint) {
-          const fileData = await readFileAsBase64(file.file);
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-              fileName: file.file.name,
-              fileType: file.file.type,
-              fileData,
-              uploadPreset,
-              cloudName,
-              folder: 'tina-cms',
-            }),
-          });
+          try {
+            const fileData = await readFileAsBase64(file.file);
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+              },
+              body: JSON.stringify({
+                fileName: file.file.name,
+                fileType: file.file.type,
+                fileData,
+                uploadPreset,
+                cloudName,
+                folder: 'tina-cms',
+              }),
+            });
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Upload failed (${response.status}): ${errorText}`);
+            if (response.ok) {
+              data = await response.json();
+            } else {
+              console.warn(`Netlify function returned status ${response.status}. Falling back to direct Cloudinary upload...`);
+              data = await uploadDirectly(file.file);
+            }
+          } catch (funcErr) {
+            console.warn('Netlify function upload error, falling back to direct upload:', funcErr);
+            data = await uploadDirectly(file.file);
           }
-
-          data = await response.json();
         } else {
-          const formData = new FormData();
-          formData.append('file', file.file);
-          formData.append('upload_preset', uploadPreset!);
-          formData.append('folder', 'tina-cms');
-
-          const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
-          console.log(`  📤 Uploading: ${file.file.name} to ${url}`);
-
-          const response = await fetch(url, {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Upload failed (${response.status}): ${errorText}`);
-          }
-
-          data = await response.json();
+          data = await uploadDirectly(file.file);
         }
 
         console.log(`  ✅ Uploaded: ${file.file.name} → ${data.secure_url}`);
