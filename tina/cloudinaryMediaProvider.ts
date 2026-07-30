@@ -24,18 +24,26 @@ const getEnvValue = (name: string) => {
   );
 };
 
-const getCloudinaryConfig = () => ({
-  cloudName:
-    getEnvValue('PUBLIC_CLOUDINARY_CLOUD_NAME') ||
-    getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') ||
-    getEnvValue('CLOUDINARY_CLOUD_NAME') ||
-    'disd3nwm7',
-  uploadPreset:
+const getCloudinaryConfig = () => {
+  let preset =
     getEnvValue('PUBLIC_CLOUDINARY_UPLOAD_PRESET') ||
     getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET') ||
     getEnvValue('CLOUDINARY_UPLOAD_PRESET') ||
-    'bev-story-images',
-});
+    'bev-story-images';
+
+  if (!preset || preset === 'my_blog_preset') {
+    preset = 'bev-story-images';
+  }
+
+  return {
+    cloudName:
+      getEnvValue('PUBLIC_CLOUDINARY_CLOUD_NAME') ||
+      getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') ||
+      getEnvValue('CLOUDINARY_CLOUD_NAME') ||
+      'disd3nwm7',
+    uploadPreset: preset,
+  };
+};
 
 const readFileAsBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {

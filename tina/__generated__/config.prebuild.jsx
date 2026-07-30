@@ -31,10 +31,16 @@ var init_cloudinaryMediaProvider = __esm({
       const processEnv = typeof process !== "undefined" ? process.env : {};
       return runtimeEnv[name] || runtimeEnv[`PUBLIC_${name}`] || runtimeEnv[`VITE_${name}`] || processEnv[name] || processEnv[`PUBLIC_${name}`] || processEnv[`VITE_${name}`];
     };
-    getCloudinaryConfig = () => ({
-      cloudName: getEnvValue("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue("VITE_CLOUDINARY_CLOUD_NAME") || getEnvValue("CLOUDINARY_CLOUD_NAME") || "disd3nwm7",
-      uploadPreset: getEnvValue("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("VITE_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("CLOUDINARY_UPLOAD_PRESET") || "bev-story-images"
-    });
+    getCloudinaryConfig = () => {
+      let preset = getEnvValue("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("VITE_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("CLOUDINARY_UPLOAD_PRESET") || "bev-story-images";
+      if (!preset || preset === "my_blog_preset") {
+        preset = "bev-story-images";
+      }
+      return {
+        cloudName: getEnvValue("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue("VITE_CLOUDINARY_CLOUD_NAME") || getEnvValue("CLOUDINARY_CLOUD_NAME") || "disd3nwm7",
+        uploadPreset: preset
+      };
+    };
     CloudinaryMediaStore = class {
       constructor() {
         __publicField(this, "accept", "image/*");
