@@ -1,5 +1,4 @@
 import { defineConfig } from "tinacms";
-import { cloudinaryMediaProvider } from "./cloudinaryMediaProvider";
 
 const slugify = (str?: string) => {
   if (!str || typeof str !== 'string') return '';

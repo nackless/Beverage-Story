@@ -1,4 +1,4 @@
-import type { MediaStore, MediaListOptions, MediaUploadOptions } from 'tinacms';
+import type { Media, MediaStore, MediaListOptions, MediaUploadOptions } from 'tinacms';
 
 const getEnvValue = (name: string) => {
   if (typeof window !== 'undefined') {
@@ -65,6 +65,10 @@ export class CloudinaryMediaStore implements MediaStore {
   accept = 'image/*';
 
   async previewSrc(src: string) {
+    if (!src || typeof src !== 'string') {
+      console.warn('⚠️ previewSrc called with invalid src:', src);
+      return '';
+    }
     return src;
   }
 
@@ -107,20 +111,37 @@ export class CloudinaryMediaStore implements MediaStore {
         throw new Error(`Direct upload failed (${response.status}) [Cloud: "${cleanCloudName}", Preset: "${cleanPreset}"]: ${errorText}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      
+      // Check for Cloudinary API errors in the response
+      if (data.error) {
+        console.error('❌ Cloudinary API returned error:', data.error);
+        throw new Error(`Cloudinary API error: ${JSON.stringify(data.error)}. Please verify your Cloud Name ("${cleanCloudName}") and Upload Preset ("${cleanPreset}") are correct.`);
+      }
+      
+      return data;
     };
 
     for (const file of files) {
       try {
         const data = await uploadDirectly(file.file);
+        
+        // Validate response has required fields
+        if (!data.secure_url) {
+          const errorDetails = JSON.stringify(data);
+          console.error('❌ Invalid Cloudinary response - missing secure_url:', errorDetails);
+          throw new Error(`Cloudinary upload failed: Response missing secure_url. Details: ${errorDetails}. Check your upload preset configuration and cloud name.`);
+        }
+        
         console.log(`  ✅ Uploaded: ${file.file.name} → ${data.secure_url}`);
 
+        const itemId = `${file.directory || ''}/${file.file.name}`.replace(/^\//, '');
         uploaded.push({
-          directory: file.directory,
-          file: {
-            name: file.file.name,
-            url: data.secure_url,
-          },
+          id: itemId,
+          type: 'file',
+          filename: file.file.name || 'upload',
+          directory: file.directory || '',
+          src: data.secure_url,
         });
       } catch (error) {
         console.error('❌ Cloudinary upload error:', error);
@@ -146,15 +167,11 @@ export class CloudinaryMediaStore implements MediaStore {
       // You can implement this with a backend API endpoint if needed
       return {
         items: [],
-        directories: [],
-        hasNextPage: false,
       };
     } catch (error) {
       console.error('Cloudinary list error:', error);
       return {
         items: [],
-        directories: [],
-        hasNextPage: false,
       };
     }
   }

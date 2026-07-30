@@ -21,13 +21,17 @@ const posts = defineCollection({
       image: z.preprocess(
         (val: any) => {
           if (!val) return val;
-          const url = typeof val === 'string' ? val : val.url;
-          const alt = typeof val === 'string' ? '' : val.alt;
-          return { url, alt };
+          if (typeof val === 'string') return { url: val };
+          return val;
         },
         z.object({
           url: z.string(),
-          alt: z.string().optional()
+          alt: z.string().optional(),
+          caption: z.string().optional(),
+          width: z.number().optional(),
+          height: z.number().optional(),
+          borderRadius: z.number().optional(),
+          alignment: z.enum(['left', 'center', 'right']).optional(),
         })
       ).optional(),
       tags: z.array(z.string()).optional()

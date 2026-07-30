@@ -46,6 +46,10 @@ var init_cloudinaryMediaProvider = __esm({
         __publicField(this, "accept", "image/*");
       }
       async previewSrc(src) {
+        if (!src || typeof src !== "string") {
+          console.warn("\u26A0\uFE0F previewSrc called with invalid src:", src);
+          return "";
+        }
         return src;
       }
       async persist(files) {
@@ -79,18 +83,29 @@ var init_cloudinaryMediaProvider = __esm({
             });
             throw new Error(`Direct upload failed (${response.status}) [Cloud: "${cleanCloudName}", Preset: "${cleanPreset}"]: ${errorText}`);
           }
-          return await response.json();
+          const data = await response.json();
+          if (data.error) {
+            console.error("\u274C Cloudinary API returned error:", data.error);
+            throw new Error(`Cloudinary API error: ${JSON.stringify(data.error)}. Please verify your Cloud Name ("${cleanCloudName}") and Upload Preset ("${cleanPreset}") are correct.`);
+          }
+          return data;
         };
         for (const file of files) {
           try {
             const data = await uploadDirectly(file.file);
+            if (!data.secure_url) {
+              const errorDetails = JSON.stringify(data);
+              console.error("\u274C Invalid Cloudinary response - missing secure_url:", errorDetails);
+              throw new Error(`Cloudinary upload failed: Response missing secure_url. Details: ${errorDetails}. Check your upload preset configuration and cloud name.`);
+            }
             console.log(`  \u2705 Uploaded: ${file.file.name} \u2192 ${data.secure_url}`);
+            const itemId = `${file.directory || ""}/${file.file.name}`.replace(/^\//, "");
             uploaded.push({
-              directory: file.directory,
-              file: {
-                name: file.file.name,
-                url: data.secure_url
-              }
+              id: itemId,
+              type: "file",
+              filename: file.file.name || "upload",
+              directory: file.directory || "",
+              src: data.secure_url
             });
           } catch (error) {
             console.error("\u274C Cloudinary upload error:", error);
@@ -108,16 +123,12 @@ var init_cloudinaryMediaProvider = __esm({
         }
         try {
           return {
-            items: [],
-            directories: [],
-            hasNextPage: false
+            items: []
           };
         } catch (error) {
           console.error("Cloudinary list error:", error);
           return {
-            items: [],
-            directories: [],
-            hasNextPage: false
+            items: []
           };
         }
       }
@@ -135,7 +146,6 @@ var init_cloudinaryMediaProvider = __esm({
 });
 
 // tina/config.ts
-init_cloudinaryMediaProvider();
 import { defineConfig } from "tinacms";
 var slugify = (str) => {
   if (!str || typeof str !== "string") return "";
