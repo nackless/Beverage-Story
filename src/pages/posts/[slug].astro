@@ -4,13 +4,15 @@ import Layout from "../../layouts/PostLayout.astro";
 
 export async function getStaticPaths() {
   let posts = await getCollection("posts");
-  return posts.map((post: any) => ({
-    params: { slug: String(post.data.slug) },
-    props: { post },
-  }));
+  return posts.map((post: any) => {
+    const slugValue = post.data?.slug || post.id;
+    return {
+      params: { slug: String(slugValue) },
+      props: { post },
+    };
+  });
 }
 
-const { slug } = Astro.params;
 const { post } = Astro.props;
 const { Content } = await render(post);
 ---

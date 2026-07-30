@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { Image, getImage } from "astro:assets";
-const { frontmatter } = Astro.props;
+const { frontmatter = {} } = Astro.props;
 
 import dateFormat from "../utils/dateFormat";
 
@@ -10,13 +10,15 @@ const cloudinaryEnabled = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
 // Optimize cover images
 let coverImageUrl: string | null = null;
-let imageAlt = frontmatter.title;
+let imageAlt = frontmatter?.title || "Beverage Story";
 
-const rawImage = frontmatter.image;
-const imageUrl = typeof rawImage === 'string' ? rawImage : (rawImage && typeof rawImage.url === 'string' ? rawImage.url : undefined);
+const rawImage = frontmatter?.image;
+const imageUrl = typeof rawImage === 'string' 
+  ? rawImage 
+  : (rawImage && typeof rawImage === 'object' && typeof rawImage.url === 'string' ? rawImage.url : undefined);
 
-if (imageUrl) {
-  imageAlt = (typeof rawImage === 'object' && rawImage?.alt) || frontmatter.title;
+if (imageUrl && typeof imageUrl === 'string') {
+  imageAlt = (typeof rawImage === 'object' && rawImage?.alt) || frontmatter?.title || "Beverage Story";
   
   // Check if image is from Cloudinary
   if (imageUrl.includes('cloudinary.com')) {
