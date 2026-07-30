@@ -16,3 +16,5 @@ image:
   alignment: center
 ---
 
+Ok, this is finallu the cure. I have done what i wanted. now I need to be able to fall back to this every time I have a problem. will for this and then do more and come back to this if things break.
+
