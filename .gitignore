@@ -5,3 +5,13 @@ node_modules
 .astro
 public/uploads/
 tina/__generated__/
+
+#System Files
+.DS_Store
+
+#VS Code metadata
+.vscode/
+
+#Google Antigravity project metadata
+.antigravity/
+.gemini/

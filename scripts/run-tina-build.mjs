@@ -31,7 +31,7 @@ function runCommand(command, args) {
 }
 
 function main() {
-  runCommand('npx', ['tinacms', 'build']);
+  runCommand('npx', ['tinacms', 'build', '--skip-cloud-checks', '--skip-search-index']);
   runCommand('npx', ['astro', 'build']);
 }
 
