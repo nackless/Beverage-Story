@@ -45,6 +45,11 @@ const readFileAsBase64 = (file: File) =>
   });
 
 export const cloudinaryMediaProvider: MediaStore = {
+  accept: '*',
+  previewSrc(src: string) {
+    return src;
+  },
+
   async persist(files: MediaUploadOptions[]) {
     const { cloudName, uploadPreset } = getCloudinaryConfig();
 

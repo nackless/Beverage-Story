@@ -6,6 +6,23 @@ const slugify = (str: string) => {
   return s;
 }
 
+const getEnvValue = (name: string) => {
+  const runtimeEnv = typeof import.meta !== 'undefined' && (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
+    ? (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
+    : {};
+
+  const processEnv = typeof process !== 'undefined' ? process.env : {};
+
+  return (
+    runtimeEnv[name] ||
+    runtimeEnv[`PUBLIC_${name}`] ||
+    runtimeEnv[`VITE_${name}`] ||
+    processEnv[name] ||
+    processEnv[`PUBLIC_${name}`] ||
+    processEnv[`VITE_${name}`]
+  );
+};
+
 // Your hosting provider likely exposes this as an environment variable
 const branch =
   process.env.GITHUB_BRANCH ||
@@ -14,40 +31,26 @@ const branch =
   "main";
 
 const clientId =
-  process.env.TINA_PUBLIC_CLIENT_ID ||
-  process.env.TINA_CLIENT_ID ||
-  process.env.NEXT_PUBLIC_TINA_CLIENT_ID ||
+  getEnvValue('PUBLIC_TINA_CLIENT_ID') ||
+  getEnvValue('TINA_PUBLIC_CLIENT_ID') ||
+  getEnvValue('TINA_CLIENT_ID') ||
+  getEnvValue('NEXT_PUBLIC_TINA_CLIENT_ID') ||
   "1efb06e9-53f1-4452-bb54-a224ec8ecc1a";
 
 const token =
-  process.env.TINA_TOKEN ||
-  process.env.TINA_CLOUD_TOKEN ||
-  process.env.TINA_CLOUD_READONLY_TOKEN;
-
-const getEnvValue = (name: string) => {
-  const runtimeEnv = typeof import.meta !== 'undefined' && (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
-    ? (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
-    : {};
-
-  return (
-    runtimeEnv[`PUBLIC_${name}`] ||
-    runtimeEnv[`VITE_${name}`] ||
-    runtimeEnv[name] ||
-    process.env[`PUBLIC_${name}`] ||
-    process.env[`VITE_${name}`] ||
-    process.env[name]
-  );
-};
+  getEnvValue('TINA_TOKEN') ||
+  getEnvValue('TINA_CLOUD_TOKEN') ||
+  getEnvValue('TINA_CLOUD_READONLY_TOKEN');
 
 // Cloudinary setup
 const cloudName =
-  getEnvValue('CLOUDINARY_CLOUD_NAME') ||
   getEnvValue('PUBLIC_CLOUDINARY_CLOUD_NAME') ||
-  getEnvValue('VITE_CLOUDINARY_CLOUD_NAME');
+  getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') ||
+  getEnvValue('CLOUDINARY_CLOUD_NAME');
 const uploadPreset =
-  getEnvValue('CLOUDINARY_UPLOAD_PRESET') ||
   getEnvValue('PUBLIC_CLOUDINARY_UPLOAD_PRESET') ||
-  getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET');
+  getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET') ||
+  getEnvValue('CLOUDINARY_UPLOAD_PRESET');
 const useCloudinary = !!(cloudName && uploadPreset);
 
 export default defineConfig({
@@ -57,7 +60,10 @@ export default defineConfig({
 
   media: useCloudinary
     ? {
-        load: async () => cloudinaryMediaProvider,
+        loadCustomStore: async () => {
+          const { cloudinaryMediaProvider } = await import("./cloudinaryMediaProvider");
+          return cloudinaryMediaProvider;
+        },
       }
     : {
         tina: {
