@@ -1,10 +1,15 @@
 import { defineConfig } from "tinacms";
 import { cloudinaryMediaProvider } from "./cloudinaryMediaProvider";
 
-const slugify = (str: string) => {
-  const s = str.toLowerCase().trim().replace(/ /g, '-').replace(/[-]+/g, '-').replace(/[^\w-]+/g, '');
-  return s;
-}
+const slugify = (str?: string) => {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/ /g, '-')
+    .replace(/[-]+/g, '-')
+    .replace(/[^\w-]+/g, '');
+};
 
 const getEnvValue = (name: string) => {
   const runtimeEnv = typeof import.meta !== 'undefined' && (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
@@ -88,14 +93,21 @@ export default defineConfig({
           filename: {
             readonly: true,
             slugify: (values) => {
-              return slugify(values.title);
+              return slugify(values?.title) || 'new-post';
             },
+          },
+          beforeSubmit: async ({ values }) => {
+            return {
+              ...values,
+              slug: values?.slug ? slugify(values.slug) : slugify(values?.title) || 'new-post',
+            };
           },
         },
         defaultItem: () => ({
           title: "New Post",
-          author: "analytical bull"
-          // layout: "../../layouts/PostLayout.astro",
+          slug: "new-post",
+          author: "analytical bull",
+          pubDate: new Date().toISOString(),
         }),
         fields: [
           // {
@@ -136,7 +148,8 @@ export default defineConfig({
 						type: "string",
 						name: "slug",
             label: "Slug",
-						required: true,
+            description: "Auto-generated from Title if left empty",
+						required: false,
 					},
           {
             type: "string",
