@@ -16,7 +16,7 @@ __export(cloudinaryMediaProvider_exports, {
   CloudinaryMediaStore: () => CloudinaryMediaStore,
   cloudinaryMediaProvider: () => cloudinaryMediaProvider
 });
-var getEnvValue, getCloudinaryConfig, getStoredMedia, saveStoredMedia, CloudinaryMediaStore, cloudinaryMediaProvider;
+var getEnvValue, getCloudinaryConfig, STORAGE_KEY, getStoredMedia, saveStoredMedia, CloudinaryMediaStore, cloudinaryMediaProvider;
 var init_cloudinaryMediaProvider = __esm({
   "tina/cloudinaryMediaProvider.ts"() {
     "use strict";
@@ -41,10 +41,11 @@ var init_cloudinaryMediaProvider = __esm({
         uploadPreset: preset
       };
     };
+    STORAGE_KEY = "tina_cloudinary_media_v2";
     getStoredMedia = () => {
       if (typeof window === "undefined") return [];
       try {
-        const raw = localStorage.getItem("tina_cloudinary_media_items");
+        const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return [];
         const items = JSON.parse(raw);
         if (!Array.isArray(items)) return [];
@@ -64,7 +65,7 @@ var init_cloudinaryMediaProvider = __esm({
       if (typeof window === "undefined") return;
       try {
         const validItems = items.filter((i) => i && typeof i.src === "string" && (i.src.startsWith("http://") || i.src.startsWith("https://") || i.src.startsWith("data:")));
-        localStorage.setItem("tina_cloudinary_media_items", JSON.stringify(validItems.slice(0, 100)));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(validItems.slice(0, 100)));
       } catch {
       }
     };

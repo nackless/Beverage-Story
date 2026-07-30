@@ -61,10 +61,12 @@ const readFileAsBase64 = (file: File) =>
     reader.readAsDataURL(file);
   });
 
+const STORAGE_KEY = 'tina_cloudinary_media_v2';
+
 const getStoredMedia = (): Media[] => {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = localStorage.getItem('tina_cloudinary_media_items');
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const items = JSON.parse(raw);
     if (!Array.isArray(items)) return [];
@@ -88,7 +90,7 @@ const saveStoredMedia = (items: Media[]) => {
   if (typeof window === 'undefined') return;
   try {
     const validItems = items.filter((i) => i && typeof i.src === 'string' && (i.src.startsWith('http://') || i.src.startsWith('https://') || i.src.startsWith('data:')));
-    localStorage.setItem('tina_cloudinary_media_items', JSON.stringify(validItems.slice(0, 100)));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(validItems.slice(0, 100)));
   } catch {
     // Ignore storage errors
   }
