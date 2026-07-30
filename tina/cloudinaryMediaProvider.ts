@@ -71,13 +71,15 @@ export class CloudinaryMediaStore implements MediaStore {
     const uploaded = [];
 
     const uploadDirectly = async (file: File) => {
+      const cleanPreset = uploadPreset!.trim();
+      const cleanCloudName = cloudName!.trim();
+
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', uploadPreset!);
-      formData.append('folder', 'tina-cms');
+      formData.append('upload_preset', cleanPreset);
 
-      const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
-      console.log(`  📤 Uploading directly: ${file.name} to ${url}`);
+      const url = `https://api.cloudinary.com/v1_1/${cleanCloudName}/auto/upload`;
+      console.log(`  📤 Uploading directly: ${file.name} to ${url} with preset ${cleanPreset}`);
 
       const response = await fetch(url, {
         method: 'POST',
