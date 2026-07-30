@@ -85,11 +85,25 @@ export class CloudinaryMediaStore implements MediaStore {
 
   async previewSrc(src: any) {
     if (!src) return '';
+
+    let urlString = '';
     if (typeof src === 'object' && src !== null) {
-      return src.previewSrc || src.src || src.url || src.id || '';
+      urlString = src.previewSrc || src.src || src.url || src.id || '';
+    } else if (typeof src === 'string') {
+      urlString = src;
     }
-    if (typeof src !== 'string') return '';
-    return src;
+
+    if (typeof urlString === 'string' && (urlString.startsWith('http://') || urlString.startsWith('https://') || urlString.startsWith('data:'))) {
+      return urlString;
+    }
+
+    const stored = getStoredMedia();
+    const match = stored.find((i) => i.id === urlString || i.filename === urlString || (i.src && i.src.includes(urlString)));
+    if (match && match.src) {
+      return match.previewSrc || match.src;
+    }
+
+    return urlString;
   }
 
   async persist(files: MediaUploadOptions[]) {
@@ -155,12 +169,11 @@ export class CloudinaryMediaStore implements MediaStore {
         
         console.log(`  ✅ Uploaded: ${file.file.name} → ${data.secure_url}`);
 
-        const itemId = `${file.directory || ''}/${file.file.name}`.replace(/^\//, '');
         const mediaItem: Media = {
-          id: itemId,
+          id: data.secure_url,
           type: 'file',
           filename: file.file.name || 'upload',
-          directory: file.directory || '',
+          directory: '',
           src: data.secure_url,
           previewSrc: data.secure_url,
         };
@@ -183,7 +196,16 @@ export class CloudinaryMediaStore implements MediaStore {
   }
 
   async list(options?: MediaListOptions) {
-    const localItems = getStoredMedia();
+    let localItems = getStoredMedia();
+
+    localItems = localItems.map((item) => ({
+      id: item.src || item.id,
+      type: 'file' as const,
+      filename: item.filename || 'image.jpg',
+      directory: '',
+      src: item.src,
+      previewSrc: item.src,
+    }));
 
     try {
       const response = await fetch('/.netlify/functions/cloudinary-list');
@@ -191,8 +213,8 @@ export class CloudinaryMediaStore implements MediaStore {
         const data = await response.json();
         if (Array.isArray(data.resources) && data.resources.length > 0) {
           const fetchedItems: Media[] = data.resources.map((res: any) => ({
-            id: res.public_id,
-            type: 'file',
+            id: res.secure_url,
+            type: 'file' as const,
             filename: `${res.public_id}.${res.format}`,
             directory: '',
             src: res.secure_url,
@@ -206,14 +228,11 @@ export class CloudinaryMediaStore implements MediaStore {
             }
           }
           saveStoredMedia(combined);
-          return {
-            items: combined,
-            nextOffset: null,
-          };
+          localItems = combined;
         }
       }
-    } catch (e) {
-      console.warn('⚠️ Unable to fetch server Cloudinary list, using local stored items:', e);
+    } catch {
+      // Ignore network errors in local dev
     }
 
     return {

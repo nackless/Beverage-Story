@@ -63,11 +63,21 @@ var init_cloudinaryMediaProvider = __esm({
       }
       async previewSrc(src) {
         if (!src) return "";
+        let urlString = "";
         if (typeof src === "object" && src !== null) {
-          return src.previewSrc || src.src || src.url || src.id || "";
+          urlString = src.previewSrc || src.src || src.url || src.id || "";
+        } else if (typeof src === "string") {
+          urlString = src;
         }
-        if (typeof src !== "string") return "";
-        return src;
+        if (typeof urlString === "string" && (urlString.startsWith("http://") || urlString.startsWith("https://") || urlString.startsWith("data:"))) {
+          return urlString;
+        }
+        const stored = getStoredMedia();
+        const match = stored.find((i) => i.id === urlString || i.filename === urlString || i.src && i.src.includes(urlString));
+        if (match && match.src) {
+          return match.previewSrc || match.src;
+        }
+        return urlString;
       }
       async persist(files) {
         const { cloudName, uploadPreset } = getCloudinaryConfig();
@@ -116,12 +126,11 @@ var init_cloudinaryMediaProvider = __esm({
               throw new Error(`Cloudinary upload failed: Response missing secure_url. Details: ${errorDetails}. Check your upload preset configuration and cloud name.`);
             }
             console.log(`  \u2705 Uploaded: ${file.file.name} \u2192 ${data.secure_url}`);
-            const itemId = `${file.directory || ""}/${file.file.name}`.replace(/^\//, "");
             const mediaItem = {
-              id: itemId,
+              id: data.secure_url,
               type: "file",
               filename: file.file.name || "upload",
-              directory: file.directory || "",
+              directory: "",
               src: data.secure_url,
               previewSrc: data.secure_url
             };
@@ -140,14 +149,22 @@ var init_cloudinaryMediaProvider = __esm({
         return uploaded;
       }
       async list(options) {
-        const localItems = getStoredMedia();
+        let localItems = getStoredMedia();
+        localItems = localItems.map((item) => ({
+          id: item.src || item.id,
+          type: "file",
+          filename: item.filename || "image.jpg",
+          directory: "",
+          src: item.src,
+          previewSrc: item.src
+        }));
         try {
           const response = await fetch("/.netlify/functions/cloudinary-list");
           if (response.ok) {
             const data = await response.json();
             if (Array.isArray(data.resources) && data.resources.length > 0) {
               const fetchedItems = data.resources.map((res) => ({
-                id: res.public_id,
+                id: res.secure_url,
                 type: "file",
                 filename: `${res.public_id}.${res.format}`,
                 directory: "",
@@ -161,14 +178,10 @@ var init_cloudinaryMediaProvider = __esm({
                 }
               }
               saveStoredMedia(combined);
-              return {
-                items: combined,
-                nextOffset: null
-              };
+              localItems = combined;
             }
           }
-        } catch (e) {
-          console.warn("\u26A0\uFE0F Unable to fetch server Cloudinary list, using local stored items:", e);
+        } catch {
         }
         return {
           items: localItems,
