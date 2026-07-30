@@ -24,9 +24,17 @@ const token =
   process.env.TINA_CLOUD_TOKEN ||
   process.env.TINA_CLOUD_READONLY_TOKEN;
 
+const getEnvValue = (name: string) => {
+  const runtimeEnv = typeof import.meta !== 'undefined' && (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
+    ? (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
+    : {};
+
+  return runtimeEnv[name] || process.env[name];
+};
+
 // Cloudinary setup
-const cloudName = process.env.VITE_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
-const uploadPreset = process.env.VITE_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;
+const cloudName = getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') || getEnvValue('CLOUDINARY_CLOUD_NAME');
+const uploadPreset = getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET') || getEnvValue('CLOUDINARY_UPLOAD_PRESET');
 const useCloudinary = !!(cloudName && uploadPreset);
 
 export default defineConfig({
