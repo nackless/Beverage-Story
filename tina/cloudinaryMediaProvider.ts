@@ -65,7 +65,30 @@ const getStoredMedia = (): Media[] => {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem('tina_cloudinary_media_items');
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const items = JSON.parse(raw);
+    if (!Array.isArray(items)) return [];
+
+    return items
+      .filter((item: any) => item && (item.src || item.filename || item.id))
+      .map((item: any) => {
+        const filename = item.filename || item.id || 'image.jpg';
+        let src = item.src || item.previewSrc || item.url || item.id || '';
+
+        if (typeof src !== 'string' || (!src.startsWith('http://') && !src.startsWith('https://') && !src.startsWith('data:'))) {
+          const cleanName = typeof src === 'string' && src ? src : filename;
+          src = `https://res.cloudinary.com/disd3nwm7/image/upload/${cleanName}`;
+        }
+
+        return {
+          id: src,
+          type: 'file' as const,
+          filename: filename,
+          directory: '',
+          src: src,
+          previewSrc: src,
+        };
+      });
   } catch {
     return [];
   }
@@ -101,6 +124,10 @@ export class CloudinaryMediaStore implements MediaStore {
     const match = stored.find((i) => i.id === urlString || i.filename === urlString || (i.src && i.src.includes(urlString)));
     if (match && match.src) {
       return match.previewSrc || match.src;
+    }
+
+    if (typeof urlString === 'string' && urlString.length > 0) {
+      return `https://res.cloudinary.com/disd3nwm7/image/upload/${urlString}`;
     }
 
     return urlString;
@@ -198,41 +225,37 @@ export class CloudinaryMediaStore implements MediaStore {
   async list(options?: MediaListOptions) {
     let localItems = getStoredMedia();
 
-    localItems = localItems.map((item) => ({
-      id: item.src || item.id,
-      type: 'file' as const,
-      filename: item.filename || 'image.jpg',
-      directory: '',
-      src: item.src,
-      previewSrc: item.src,
-    }));
+    // Try API routes first, then Netlify function
+    const endpoints = ['/api/cloudinary-list.json', '/.netlify/functions/cloudinary-list'];
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(endpoint);
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data.resources) && data.resources.length > 0) {
+            const fetchedItems: Media[] = data.resources.map((res: any) => ({
+              id: res.secure_url,
+              type: 'file' as const,
+              filename: `${res.public_id}.${res.format}`,
+              directory: '',
+              src: res.secure_url,
+              previewSrc: res.secure_url,
+            }));
 
-    try {
-      const response = await fetch('/.netlify/functions/cloudinary-list');
-      if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data.resources) && data.resources.length > 0) {
-          const fetchedItems: Media[] = data.resources.map((res: any) => ({
-            id: res.secure_url,
-            type: 'file' as const,
-            filename: `${res.public_id}.${res.format}`,
-            directory: '',
-            src: res.secure_url,
-            previewSrc: res.secure_url,
-          }));
-
-          const combined = [...localItems];
-          for (const item of fetchedItems) {
-            if (!combined.some((i) => i.src === item.src)) {
-              combined.push(item);
+            const combined = [...localItems];
+            for (const item of fetchedItems) {
+              if (!combined.some((i) => i.src === item.src)) {
+                combined.push(item);
+              }
             }
+            saveStoredMedia(combined);
+            localItems = combined;
+            break;
           }
-          saveStoredMedia(combined);
-          localItems = combined;
         }
+      } catch {
+        // Ignore network error per endpoint
       }
-    } catch {
-      // Ignore network errors in local dev
     }
 
     return {

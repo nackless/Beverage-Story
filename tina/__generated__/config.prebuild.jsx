@@ -45,7 +45,25 @@ var init_cloudinaryMediaProvider = __esm({
       if (typeof window === "undefined") return [];
       try {
         const raw = localStorage.getItem("tina_cloudinary_media_items");
-        return raw ? JSON.parse(raw) : [];
+        if (!raw) return [];
+        const items = JSON.parse(raw);
+        if (!Array.isArray(items)) return [];
+        return items.filter((item) => item && (item.src || item.filename || item.id)).map((item) => {
+          const filename = item.filename || item.id || "image.jpg";
+          let src = item.src || item.previewSrc || item.url || item.id || "";
+          if (typeof src !== "string" || !src.startsWith("http://") && !src.startsWith("https://") && !src.startsWith("data:")) {
+            const cleanName = typeof src === "string" && src ? src : filename;
+            src = `https://res.cloudinary.com/disd3nwm7/image/upload/${cleanName}`;
+          }
+          return {
+            id: src,
+            type: "file",
+            filename,
+            directory: "",
+            src,
+            previewSrc: src
+          };
+        });
       } catch {
         return [];
       }
@@ -76,6 +94,9 @@ var init_cloudinaryMediaProvider = __esm({
         const match = stored.find((i) => i.id === urlString || i.filename === urlString || i.src && i.src.includes(urlString));
         if (match && match.src) {
           return match.previewSrc || match.src;
+        }
+        if (typeof urlString === "string" && urlString.length > 0) {
+          return `https://res.cloudinary.com/disd3nwm7/image/upload/${urlString}`;
         }
         return urlString;
       }
@@ -150,38 +171,34 @@ var init_cloudinaryMediaProvider = __esm({
       }
       async list(options) {
         let localItems = getStoredMedia();
-        localItems = localItems.map((item) => ({
-          id: item.src || item.id,
-          type: "file",
-          filename: item.filename || "image.jpg",
-          directory: "",
-          src: item.src,
-          previewSrc: item.src
-        }));
-        try {
-          const response = await fetch("/.netlify/functions/cloudinary-list");
-          if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data.resources) && data.resources.length > 0) {
-              const fetchedItems = data.resources.map((res) => ({
-                id: res.secure_url,
-                type: "file",
-                filename: `${res.public_id}.${res.format}`,
-                directory: "",
-                src: res.secure_url,
-                previewSrc: res.secure_url
-              }));
-              const combined = [...localItems];
-              for (const item of fetchedItems) {
-                if (!combined.some((i) => i.src === item.src)) {
-                  combined.push(item);
+        const endpoints = ["/api/cloudinary-list.json", "/.netlify/functions/cloudinary-list"];
+        for (const endpoint of endpoints) {
+          try {
+            const response = await fetch(endpoint);
+            if (response.ok) {
+              const data = await response.json();
+              if (Array.isArray(data.resources) && data.resources.length > 0) {
+                const fetchedItems = data.resources.map((res) => ({
+                  id: res.secure_url,
+                  type: "file",
+                  filename: `${res.public_id}.${res.format}`,
+                  directory: "",
+                  src: res.secure_url,
+                  previewSrc: res.secure_url
+                }));
+                const combined = [...localItems];
+                for (const item of fetchedItems) {
+                  if (!combined.some((i) => i.src === item.src)) {
+                    combined.push(item);
+                  }
                 }
+                saveStoredMedia(combined);
+                localItems = combined;
+                break;
               }
-              saveStoredMedia(combined);
-              localItems = combined;
             }
+          } catch {
           }
-        } catch {
         }
         return {
           items: localItems,
