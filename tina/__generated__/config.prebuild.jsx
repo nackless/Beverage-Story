@@ -18,13 +18,19 @@ var init_cloudinaryMediaProvider = __esm({
   "tina/cloudinaryMediaProvider.ts"() {
     "use strict";
     getEnvValue = (name) => {
+      if (typeof window !== "undefined") {
+        const win = window;
+        if (win[name]) return win[name];
+        if (win[`PUBLIC_${name}`]) return win[`PUBLIC_${name}`];
+        if (win[`VITE_${name}`]) return win[`VITE_${name}`];
+      }
       const runtimeEnv = typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
       const processEnv = typeof process !== "undefined" ? process.env : {};
-      return runtimeEnv[`PUBLIC_${name}`] || runtimeEnv[`VITE_${name}`] || runtimeEnv[name] || processEnv[`PUBLIC_${name}`] || processEnv[`VITE_${name}`] || processEnv[name];
+      return runtimeEnv[name] || runtimeEnv[`PUBLIC_${name}`] || runtimeEnv[`VITE_${name}`] || processEnv[name] || processEnv[`PUBLIC_${name}`] || processEnv[`VITE_${name}`];
     };
     getCloudinaryConfig = () => ({
-      cloudName: getEnvValue("CLOUDINARY_CLOUD_NAME") || getEnvValue("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue("VITE_CLOUDINARY_CLOUD_NAME"),
-      uploadPreset: getEnvValue("CLOUDINARY_UPLOAD_PRESET") || getEnvValue("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("VITE_CLOUDINARY_UPLOAD_PRESET")
+      cloudName: getEnvValue("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue("VITE_CLOUDINARY_CLOUD_NAME") || getEnvValue("CLOUDINARY_CLOUD_NAME"),
+      uploadPreset: getEnvValue("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("VITE_CLOUDINARY_UPLOAD_PRESET") || getEnvValue("CLOUDINARY_UPLOAD_PRESET")
     });
     readFileAsBase64 = (file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -46,9 +52,9 @@ var init_cloudinaryMediaProvider = __esm({
         return src;
       },
       async persist(files) {
-        const { cloudName: cloudName2, uploadPreset: uploadPreset2 } = getCloudinaryConfig();
-        if (!cloudName2 || !uploadPreset2) {
-          const error = `Cloudinary credentials missing. Cloud Name: ${!cloudName2 ? "\u274C" : "\u2705"}, Preset: ${!uploadPreset2 ? "\u274C" : "\u2705"}`;
+        const { cloudName, uploadPreset } = getCloudinaryConfig();
+        if (!cloudName || !uploadPreset) {
+          const error = `Cloudinary credentials missing. Cloud Name: ${!cloudName ? "\u274C" : "\u2705"}, Preset: ${!uploadPreset ? "\u274C" : "\u2705"}`;
           console.error("\u274C " + error);
           throw new Error(error);
         }
@@ -57,9 +63,9 @@ var init_cloudinaryMediaProvider = __esm({
         const uploadDirectly = async (file) => {
           const formData = new FormData();
           formData.append("file", file);
-          formData.append("upload_preset", uploadPreset2);
+          formData.append("upload_preset", uploadPreset);
           formData.append("folder", "tina-cms");
-          const url = `https://api.cloudinary.com/v1_1/${cloudName2}/auto/upload`;
+          const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
           console.log(`  \u{1F4E4} Uploading directly: ${file.name} to ${url}`);
           const response = await fetch(url, {
             method: "POST",
@@ -87,8 +93,8 @@ var init_cloudinaryMediaProvider = __esm({
                     fileName: file.file.name,
                     fileType: file.file.type,
                     fileData,
-                    uploadPreset: uploadPreset2,
-                    cloudName: cloudName2,
+                    uploadPreset,
+                    cloudName,
                     folder: "tina-cms"
                   })
                 });
@@ -122,8 +128,8 @@ var init_cloudinaryMediaProvider = __esm({
         return uploaded;
       },
       async list(options) {
-        const { cloudName: cloudName2 } = getCloudinaryConfig();
-        if (!cloudName2) {
+        const { cloudName } = getCloudinaryConfig();
+        if (!cloudName) {
           console.error("Cloudinary Cloud Name not configured");
           throw new Error("Cloudinary Cloud Name not configured");
         }
@@ -143,8 +149,8 @@ var init_cloudinaryMediaProvider = __esm({
         }
       },
       async delete(asset) {
-        const { cloudName: cloudName2 } = getCloudinaryConfig();
-        if (!cloudName2) {
+        const { cloudName } = getCloudinaryConfig();
+        if (!cloudName) {
           console.error("Cloudinary Cloud Name not configured");
           throw new Error("Cloudinary Cloud Name not configured");
         }
@@ -169,22 +175,14 @@ var getEnvValue2 = (name) => {
 var branch = process.env.GITHUB_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.HEAD || "main";
 var clientId = getEnvValue2("PUBLIC_TINA_CLIENT_ID") || getEnvValue2("TINA_PUBLIC_CLIENT_ID") || getEnvValue2("TINA_CLIENT_ID") || getEnvValue2("NEXT_PUBLIC_TINA_CLIENT_ID") || "1efb06e9-53f1-4452-bb54-a224ec8ecc1a";
 var token = getEnvValue2("TINA_TOKEN") || getEnvValue2("TINA_CLOUD_TOKEN") || getEnvValue2("TINA_CLOUD_READONLY_TOKEN");
-var cloudName = getEnvValue2("PUBLIC_CLOUDINARY_CLOUD_NAME") || getEnvValue2("VITE_CLOUDINARY_CLOUD_NAME") || getEnvValue2("CLOUDINARY_CLOUD_NAME");
-var uploadPreset = getEnvValue2("PUBLIC_CLOUDINARY_UPLOAD_PRESET") || getEnvValue2("VITE_CLOUDINARY_UPLOAD_PRESET") || getEnvValue2("CLOUDINARY_UPLOAD_PRESET");
-var useCloudinary = !!(cloudName && uploadPreset);
 var config_default = defineConfig({
   branch,
   clientId,
   token,
-  media: useCloudinary ? {
+  media: {
     loadCustomStore: async () => {
       const { cloudinaryMediaProvider: cloudinaryMediaProvider3 } = await Promise.resolve().then(() => (init_cloudinaryMediaProvider(), cloudinaryMediaProvider_exports));
       return cloudinaryMediaProvider3;
-    }
-  } : {
-    tina: {
-      mediaRoot: "uploads",
-      publicFolder: "public"
     }
   },
   build: {

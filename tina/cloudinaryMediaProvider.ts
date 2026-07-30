@@ -1,6 +1,13 @@
 import type { MediaStore, MediaListOptions, MediaUploadOptions } from 'tinacms';
 
 const getEnvValue = (name: string) => {
+  if (typeof window !== 'undefined') {
+    const win = window as any;
+    if (win[name]) return win[name];
+    if (win[`PUBLIC_${name}`]) return win[`PUBLIC_${name}`];
+    if (win[`VITE_${name}`]) return win[`VITE_${name}`];
+  }
+
   const runtimeEnv = typeof import.meta !== 'undefined' && (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
     ? (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env
     : {};
@@ -8,24 +15,24 @@ const getEnvValue = (name: string) => {
   const processEnv = typeof process !== 'undefined' ? process.env : {};
 
   return (
+    runtimeEnv[name] ||
     runtimeEnv[`PUBLIC_${name}`] ||
     runtimeEnv[`VITE_${name}`] ||
-    runtimeEnv[name] ||
+    processEnv[name] ||
     processEnv[`PUBLIC_${name}`] ||
-    processEnv[`VITE_${name}`] ||
-    processEnv[name]
+    processEnv[`VITE_${name}`]
   );
 };
 
 const getCloudinaryConfig = () => ({
   cloudName:
-    getEnvValue('CLOUDINARY_CLOUD_NAME') ||
     getEnvValue('PUBLIC_CLOUDINARY_CLOUD_NAME') ||
-    getEnvValue('VITE_CLOUDINARY_CLOUD_NAME'),
+    getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') ||
+    getEnvValue('CLOUDINARY_CLOUD_NAME'),
   uploadPreset:
-    getEnvValue('CLOUDINARY_UPLOAD_PRESET') ||
     getEnvValue('PUBLIC_CLOUDINARY_UPLOAD_PRESET') ||
-    getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET'),
+    getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET') ||
+    getEnvValue('CLOUDINARY_UPLOAD_PRESET'),
 });
 
 const readFileAsBase64 = (file: File) =>

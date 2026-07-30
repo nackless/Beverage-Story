@@ -47,35 +47,17 @@ const token =
   getEnvValue('TINA_CLOUD_TOKEN') ||
   getEnvValue('TINA_CLOUD_READONLY_TOKEN');
 
-// Cloudinary setup
-const cloudName =
-  getEnvValue('PUBLIC_CLOUDINARY_CLOUD_NAME') ||
-  getEnvValue('VITE_CLOUDINARY_CLOUD_NAME') ||
-  getEnvValue('CLOUDINARY_CLOUD_NAME');
-const uploadPreset =
-  getEnvValue('PUBLIC_CLOUDINARY_UPLOAD_PRESET') ||
-  getEnvValue('VITE_CLOUDINARY_UPLOAD_PRESET') ||
-  getEnvValue('CLOUDINARY_UPLOAD_PRESET');
-const useCloudinary = !!(cloudName && uploadPreset);
-
 export default defineConfig({
   branch,
   clientId,
   token,
 
-  media: useCloudinary
-    ? {
-        loadCustomStore: async () => {
-          const { cloudinaryMediaProvider } = await import("./cloudinaryMediaProvider");
-          return cloudinaryMediaProvider;
-        },
-      }
-    : {
-        tina: {
-          mediaRoot: "uploads",
-          publicFolder: "public",
-        },
-      },
+  media: {
+    loadCustomStore: async () => {
+      const { cloudinaryMediaProvider } = await import("./cloudinaryMediaProvider");
+      return cloudinaryMediaProvider;
+    },
+  },
 
   build: {
     outputFolder: "admin",
