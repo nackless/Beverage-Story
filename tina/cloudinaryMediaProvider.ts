@@ -61,14 +61,32 @@ const readFileAsBase64 = (file: File) =>
     reader.readAsDataURL(file);
   });
 
+const getStoredMedia = (): Media[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem('tina_cloudinary_media_items');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveStoredMedia = (items: Media[]) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('tina_cloudinary_media_items', JSON.stringify(items.slice(0, 100)));
+  } catch {
+    // Ignore storage errors
+  }
+};
+
 export class CloudinaryMediaStore implements MediaStore {
   accept = 'image/*';
-  private sessionItems: Media[] = [];
 
   async previewSrc(src: any) {
     if (!src) return '';
     if (typeof src === 'object' && src !== null) {
-      return src.src || src.url || src.id || '';
+      return src.previewSrc || src.src || src.url || src.id || '';
     }
     if (typeof src !== 'string') return '';
     return src;
@@ -144,12 +162,15 @@ export class CloudinaryMediaStore implements MediaStore {
           filename: file.file.name || 'upload',
           directory: file.directory || '',
           src: data.secure_url,
+          previewSrc: data.secure_url,
         };
         uploaded.push(mediaItem);
 
-        // Add to session list if not already present
-        if (!this.sessionItems.some((i) => i.src === mediaItem.src)) {
-          this.sessionItems.unshift(mediaItem);
+        // Store in localStorage
+        const stored = getStoredMedia();
+        if (!stored.some((i) => i.src === mediaItem.src)) {
+          stored.unshift(mediaItem);
+          saveStoredMedia(stored);
         }
       } catch (error) {
         console.error('❌ Cloudinary upload error:', error);
@@ -162,6 +183,8 @@ export class CloudinaryMediaStore implements MediaStore {
   }
 
   async list(options?: MediaListOptions) {
+    const localItems = getStoredMedia();
+
     try {
       const response = await fetch('/.netlify/functions/cloudinary-list');
       if (response.ok) {
@@ -173,14 +196,16 @@ export class CloudinaryMediaStore implements MediaStore {
             filename: `${res.public_id}.${res.format}`,
             directory: '',
             src: res.secure_url,
+            previewSrc: res.secure_url,
           }));
 
-          const combined = [...this.sessionItems];
+          const combined = [...localItems];
           for (const item of fetchedItems) {
             if (!combined.some((i) => i.src === item.src)) {
               combined.push(item);
             }
           }
+          saveStoredMedia(combined);
           return {
             items: combined,
             nextOffset: null,
@@ -188,11 +213,11 @@ export class CloudinaryMediaStore implements MediaStore {
         }
       }
     } catch (e) {
-      console.warn('⚠️ Unable to fetch server Cloudinary list, using session items:', e);
+      console.warn('⚠️ Unable to fetch server Cloudinary list, using local stored items:', e);
     }
 
     return {
-      items: this.sessionItems,
+      items: localItems,
       nextOffset: null,
     };
   }
@@ -200,7 +225,8 @@ export class CloudinaryMediaStore implements MediaStore {
   async delete(media: any) {
     const target = typeof media === 'string' ? media : (media?.src || media?.id);
     if (target) {
-      this.sessionItems = this.sessionItems.filter((i) => i.src !== target && i.id !== target);
+      const updated = getStoredMedia().filter((i) => i.src !== target && i.id !== target);
+      saveStoredMedia(updated);
     }
   }
 }

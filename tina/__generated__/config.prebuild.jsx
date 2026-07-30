@@ -16,7 +16,7 @@ __export(cloudinaryMediaProvider_exports, {
   CloudinaryMediaStore: () => CloudinaryMediaStore,
   cloudinaryMediaProvider: () => cloudinaryMediaProvider
 });
-var getEnvValue, getCloudinaryConfig, CloudinaryMediaStore, cloudinaryMediaProvider;
+var getEnvValue, getCloudinaryConfig, getStoredMedia, saveStoredMedia, CloudinaryMediaStore, cloudinaryMediaProvider;
 var init_cloudinaryMediaProvider = __esm({
   "tina/cloudinaryMediaProvider.ts"() {
     "use strict";
@@ -41,15 +41,30 @@ var init_cloudinaryMediaProvider = __esm({
         uploadPreset: preset
       };
     };
+    getStoredMedia = () => {
+      if (typeof window === "undefined") return [];
+      try {
+        const raw = localStorage.getItem("tina_cloudinary_media_items");
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    };
+    saveStoredMedia = (items) => {
+      if (typeof window === "undefined") return;
+      try {
+        localStorage.setItem("tina_cloudinary_media_items", JSON.stringify(items.slice(0, 100)));
+      } catch {
+      }
+    };
     CloudinaryMediaStore = class {
       constructor() {
         __publicField(this, "accept", "image/*");
-        __publicField(this, "sessionItems", []);
       }
       async previewSrc(src) {
         if (!src) return "";
         if (typeof src === "object" && src !== null) {
-          return src.src || src.url || src.id || "";
+          return src.previewSrc || src.src || src.url || src.id || "";
         }
         if (typeof src !== "string") return "";
         return src;
@@ -107,11 +122,14 @@ var init_cloudinaryMediaProvider = __esm({
               type: "file",
               filename: file.file.name || "upload",
               directory: file.directory || "",
-              src: data.secure_url
+              src: data.secure_url,
+              previewSrc: data.secure_url
             };
             uploaded.push(mediaItem);
-            if (!this.sessionItems.some((i) => i.src === mediaItem.src)) {
-              this.sessionItems.unshift(mediaItem);
+            const stored = getStoredMedia();
+            if (!stored.some((i) => i.src === mediaItem.src)) {
+              stored.unshift(mediaItem);
+              saveStoredMedia(stored);
             }
           } catch (error) {
             console.error("\u274C Cloudinary upload error:", error);
@@ -122,6 +140,7 @@ var init_cloudinaryMediaProvider = __esm({
         return uploaded;
       }
       async list(options) {
+        const localItems = getStoredMedia();
         try {
           const response = await fetch("/.netlify/functions/cloudinary-list");
           if (response.ok) {
@@ -132,14 +151,16 @@ var init_cloudinaryMediaProvider = __esm({
                 type: "file",
                 filename: `${res.public_id}.${res.format}`,
                 directory: "",
-                src: res.secure_url
+                src: res.secure_url,
+                previewSrc: res.secure_url
               }));
-              const combined = [...this.sessionItems];
+              const combined = [...localItems];
               for (const item of fetchedItems) {
                 if (!combined.some((i) => i.src === item.src)) {
                   combined.push(item);
                 }
               }
+              saveStoredMedia(combined);
               return {
                 items: combined,
                 nextOffset: null
@@ -147,17 +168,18 @@ var init_cloudinaryMediaProvider = __esm({
             }
           }
         } catch (e) {
-          console.warn("\u26A0\uFE0F Unable to fetch server Cloudinary list, using session items:", e);
+          console.warn("\u26A0\uFE0F Unable to fetch server Cloudinary list, using local stored items:", e);
         }
         return {
-          items: this.sessionItems,
+          items: localItems,
           nextOffset: null
         };
       }
       async delete(media) {
         const target = typeof media === "string" ? media : media?.src || media?.id;
         if (target) {
-          this.sessionItems = this.sessionItems.filter((i) => i.src !== target && i.id !== target);
+          const updated = getStoredMedia().filter((i) => i.src !== target && i.id !== target);
+          saveStoredMedia(updated);
         }
       }
     };
