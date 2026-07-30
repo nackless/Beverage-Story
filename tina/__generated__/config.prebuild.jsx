@@ -79,7 +79,13 @@ var init_cloudinaryMediaProvider = __esm({
           });
           if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Direct upload failed (${response.status}): ${errorText}`);
+            console.error("\u274C Cloudinary Upload Error Details:", {
+              cloudName: cleanCloudName,
+              uploadPreset: cleanPreset,
+              status: response.status,
+              response: errorText
+            });
+            throw new Error(`Direct upload failed (${response.status}) [Cloud: "${cleanCloudName}", Preset: "${cleanPreset}"]: ${errorText}`);
           }
           return await response.json();
         };
